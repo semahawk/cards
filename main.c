@@ -39,6 +39,20 @@ void dispatch_event(SDL_Event event)
   }
 }
 
+void cap_frame_rate(void)
+{
+  static unsigned wait_time = 1000.0f / 30;
+  static unsigned frame_start_time = 0;
+  static int delay_time;
+
+  delay_time = wait_time - (SDL_GetTicks() - frame_start_time);
+
+  if (delay_time > 0)
+    SDL_Delay((unsigned)delay_time);
+
+  frame_start_time = SDL_GetTicks();
+}
+
 int main(int argc, char *argv[])
 {
   SDL_Event event;
@@ -63,6 +77,8 @@ int main(int argc, char *argv[])
     draws("`wh`rh`gh`bh`ch`mh`yh`kh", 0, 0);
 
     SDL_Flip(screen);
+
+    cap_frame_rate();
   }
 
   text_fini();
