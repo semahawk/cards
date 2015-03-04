@@ -31,6 +31,9 @@ void dispatch_event(SDL_Event event)
     case SDL_QUIT:
       running = false;
       break;
+    case SDL_KEYDOWN:
+      if (event.key.keysym.sym == SDLK_ESCAPE)
+        running = false;
     default:
       /* nop */;
   }
@@ -46,17 +49,18 @@ int main(int argc, char *argv[])
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
-  text_init("./font.bmp");
-
-  screen = SDL_SetVideoMode(WINDOW_COLS * font_width, WINDOW_ROWS * font_height, 32, SDL_SWSURFACE);
+  text_init1("./font.bmp");
+  screen = SDL_SetVideoMode(WINDOW_COLS * font_width, WINDOW_ROWS * font_height, 32, SDL_HWSURFACE);
+  text_init2();
 
   while (running){
     SDL_PollEvent(&event);
+    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
     dispatch_event(event);
 
     drawch('C', 1, 2);
-    draws("hello, world!", 0, 0);
+    draws("`wh`rh`gh`bh`ch`mh`yh`kh", 0, 0);
 
     SDL_Flip(screen);
   }

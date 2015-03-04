@@ -17,7 +17,8 @@
 
 void drawch(Uint16 ch, unsigned x, unsigned y);
 void draws(const char *s, unsigned x, unsigned y);
-void text_init(const char *font_path);
+void text_init1(const char *font_path);
+void text_init2(void);
 void text_fini(void);
 
 extern SDL_Rect font_bitmap_chars[256];

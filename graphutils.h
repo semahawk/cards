@@ -13,7 +13,9 @@
 #ifndef GRAPHUTILS_H
 #define GRAPHUTILS_H
 
-Uint32 getPixel32(SDL_Surface *surf, unsigned x, unsigned y);
+Uint32 get_pixel(SDL_Surface *surf, unsigned x, unsigned y);
+void set_pixel(SDL_Surface *surf, unsigned x, unsigned y, Uint32 color);
+void replace_pixels(SDL_Surface *surf, Uint32 old, Uint32 new);
 
 #endif /* GRAPHUTILS_H */
 
