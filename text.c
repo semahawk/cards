@@ -86,6 +86,12 @@ void drawd(int d, unsigned x, unsigned y)
   char out[10] = { 0 };
   int i = 0;
 
+  if (d == 0){
+    drawch('0', x, y);
+
+    return;
+  }
+
   if (d < 0){
     drawch('-', x++, y);
     d = -d;

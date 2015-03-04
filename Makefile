@@ -1,10 +1,11 @@
 CC = clang
-CFLAGS = -W -Wall -Werror -std=c99 `sdl-config --cflags`
+CFLAGS = -W -Wall -std=c99 `sdl-config --cflags`
 
 PROJ = cards
 OBJS = \
 	main.o \
 	graphutils.o \
+	map.o \
 	text.o
 
 LIBS = `sdl-config --libs`

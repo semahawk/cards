@@ -18,6 +18,7 @@
 
 #include "main.h"
 #include "text.h"
+#include "map.h"
 
 unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
 
@@ -36,8 +37,27 @@ void dispatch_event(SDL_Event event)
       running = false;
       break;
     case SDL_KEYDOWN:
-      if (event.key.keysym.sym == SDLK_ESCAPE)
-        running = false;
+      switch (event.key.keysym.sym){
+        case SDLK_ESCAPE:
+          running = false;
+          break;
+        case SDLK_DOWN:
+        case SDLK_j:
+          move_hero_down();
+          break;
+        case SDLK_UP:
+        case SDLK_k:
+          move_hero_up();
+          break;
+        case SDLK_LEFT:
+        case SDLK_h:
+          move_hero_left();
+          break;
+        case SDLK_RIGHT:
+        case SDLK_l:
+          move_hero_right();
+          break;
+      }
     default:
       /* nop */;
   }
@@ -71,6 +91,8 @@ int main(int argc, char *argv[])
   screen = SDL_SetVideoMode(WINDOW_COLS * font_width, WINDOW_ROWS * font_height, 32, SDL_HWSURFACE);
   text_init2();
 
+  map_init();
+
   while (running){
     SDL_PollEvent(&event);
     SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
@@ -79,6 +101,13 @@ int main(int argc, char *argv[])
 
     draws("`bfps `cm", 0, 0);
     drawd((int)frames_per_second, 4, 0);
+
+    draws("`bx:`cm", 7, 0);
+    drawd(hero_pos_x, 9, 0);
+    draws("`by:`cm", 12, 0);
+    drawd(hero_pos_y, 14, 0);
+
+    map_render();
 
     SDL_Flip(screen);
 
