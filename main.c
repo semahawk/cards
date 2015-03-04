@@ -21,6 +21,10 @@
 
 unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
 
+float alpha = 0.05;  // Change at will. Lower means smoother, but higher values respond faster.
+Uint32 get_ticks, frame_time_delta, frame_time_last;
+float frame_time, frames_per_second;
+
 SDL_Surface *screen = NULL;
 
 bool running = true;
@@ -41,7 +45,7 @@ void dispatch_event(SDL_Event event)
 
 void cap_frame_rate(void)
 {
-  static unsigned wait_time = 1000.0f / 30;
+  static unsigned wait_time = 1000.0f / FRAMES_PER_SECOND_CAP;
   static unsigned frame_start_time = 0;
   static int delay_time;
 
@@ -73,10 +77,16 @@ int main(int argc, char *argv[])
 
     dispatch_event(event);
 
-    drawch('C', 1, 2);
-    draws("`wh`rh`gh`bh`ch`mh`yh`kh", 0, 0);
+    draws("`bfps `cm", 0, 0);
+    drawd((int)frames_per_second, 4, 0);
 
     SDL_Flip(screen);
+
+    get_ticks = SDL_GetTicks();
+    frame_time_delta = get_ticks - frame_time_last;
+    frame_time_last = get_ticks;
+    frame_time = alpha * frame_time_delta + (1.0 - alpha) * frame_time;
+    frames_per_second = 1000.0 / frame_time;
 
     cap_frame_rate();
   }

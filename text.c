@@ -81,6 +81,25 @@ void draws(const char *s, unsigned x, unsigned y)
   }
 }
 
+void drawd(int d, unsigned x, unsigned y)
+{
+  char out[10] = { 0 };
+  int i = 0;
+
+  if (d < 0){
+    drawch('-', x++, y);
+    d = -d;
+  }
+
+  for (; d > 0; d /= 10)
+    out[i++] = d % 10 + '0';
+
+  i--;
+
+  while (i >= 0)
+    drawch(out[i--], x++, y);
+}
+
 void load_font(const char *font_path)
 {
   font_bitmap = SDL_LoadBMP(font_path);

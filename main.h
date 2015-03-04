@@ -15,6 +15,8 @@
 
 #include "text.h"
 
+#define FRAMES_PER_SECOND_CAP 30
+
 extern unsigned WINDOW_COLS, WINDOW_ROWS;
 
 extern SDL_Surface *screen;
