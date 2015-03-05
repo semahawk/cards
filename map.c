@@ -33,26 +33,30 @@ static unsigned map_height = 64;
 
 void move_hero_up(void)
 {
-  if (hero_pos_y > 0)
-    hero_pos_y--;
+  if (!(tile(hero_pos_x, hero_pos_y - 1) & TILE_UNPASSABLE))
+    if (hero_pos_y > 0)
+      hero_pos_y--;
 }
 
 void move_hero_down(void)
 {
-  if (hero_pos_y < map_height - 1)
-    hero_pos_y++;
+  if (!(tile(hero_pos_x, hero_pos_y + 1) & TILE_UNPASSABLE))
+    if (hero_pos_y < map_height - 1)
+      hero_pos_y++;
 }
 
 void move_hero_left(void)
 {
-  if (hero_pos_x > 0)
-    hero_pos_x--;
+  if (!(tile(hero_pos_x - 1, hero_pos_y) & TILE_UNPASSABLE))
+    if (hero_pos_x > 0)
+      hero_pos_x--;
 }
 
 void move_hero_right(void)
 {
-  if (hero_pos_x < map_width - 1)
-    hero_pos_x++;
+  if (!(tile(hero_pos_x + 1, hero_pos_y) & TILE_UNPASSABLE))
+    if (hero_pos_x < map_width - 1)
+      hero_pos_x++;
 }
 
 void map_draw_tile(tile_t tile, unsigned x, unsigned y)
@@ -138,7 +142,7 @@ void map_init(void)
   }
 
   /* make some of the tiles be trees */
-  for (unsigned i = 0; i < (map_width * map_height) / 119; i++){
+  for (unsigned i = 0; i < (map_width * map_height) / 19; i++){
     unsigned x = rand() % map_width;
     unsigned y = rand() % map_height;
 
