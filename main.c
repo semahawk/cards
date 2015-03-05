@@ -34,32 +34,30 @@ bool running = true;
 
 void dispatch_event(SDL_Event event)
 {
+  Uint8* keystate = SDL_GetKeyState(NULL);
+
+  if (keystate[SDLK_LEFT] || keystate[SDLK_h]){
+    move_hero_left();
+  }
+
+  if (keystate[SDLK_RIGHT] || keystate[SDLK_l]){
+    move_hero_right();
+  }
+
+  if (keystate[SDLK_UP] || keystate[SDLK_k]){
+    move_hero_up();
+  }
+
+  if (keystate[SDLK_DOWN] || keystate[SDLK_j]){
+    move_hero_down();
+  }
+
   switch (event.type){
     case SDL_QUIT:
-      running = false;
-      break;
     case SDL_KEYDOWN:
-      switch (event.key.keysym.sym){
-        case SDLK_ESCAPE:
+      if (event.key.keysym.sym == SDLK_ESCAPE)
           running = false;
-          break;
-        case SDLK_DOWN:
-        case SDLK_j:
-          move_hero_down();
-          break;
-        case SDLK_UP:
-        case SDLK_k:
-          move_hero_up();
-          break;
-        case SDLK_LEFT:
-        case SDLK_h:
-          move_hero_left();
-          break;
-        case SDLK_RIGHT:
-        case SDLK_l:
-          move_hero_right();
-          break;
-      }
+      break;
     default:
       /* nop */;
   }
