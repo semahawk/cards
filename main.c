@@ -97,7 +97,6 @@ int main(int argc, char *argv[])
 
   while (running){
     SDL_PollEvent(&event);
-    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
     dispatch_event(event);
 
@@ -122,6 +121,7 @@ int main(int argc, char *argv[])
     cap_frame_rate();
   }
 
+  map_fini();
   text_fini();
 
   atexit(SDL_Quit);

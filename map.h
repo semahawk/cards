@@ -30,6 +30,7 @@ void move_hero_left(void);
 void move_hero_right(void);
 
 void map_init(void);
+void map_fini(void);
 void map_render(void);
 
 #endif /* MAP_H */

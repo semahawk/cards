@@ -142,13 +142,18 @@ void map_init(void)
   }
 
   /* make some of the tiles be trees */
-  for (unsigned i = 0; i < (map_width * map_height) / 19; i++){
+  for (unsigned i = 0; i < (map_width * map_height) / 59; i++){
     unsigned x = rand() % map_width;
     unsigned y = rand() % map_height;
 
     if (tile(x, y) == TILE_TREE) continue;
     else tile(x, y) = TILE_TREE;
   }
+}
+
+void map_fini(void)
+{
+  free(map_tiles);
 }
 
 /*
