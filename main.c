@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
 #include <SDL/SDL.h>
 
@@ -22,7 +24,7 @@
 
 unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
 
-float alpha = 0.05;  // Change at will. Lower means smoother, but higher values respond faster.
+float alpha = 0.05;
 Uint32 get_ticks, frame_time_delta, frame_time_last;
 float frame_time, frames_per_second;
 
@@ -87,6 +89,8 @@ int main(int argc, char *argv[])
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
+  srand(time(NULL));
+
   text_init1("./font.bmp");
   screen = SDL_SetVideoMode(WINDOW_COLS * font_width, WINDOW_ROWS * font_height, 32, SDL_HWSURFACE);
   text_init2();
@@ -99,6 +103,8 @@ int main(int argc, char *argv[])
 
     dispatch_event(event);
 
+    map_render();
+
     draws("`bfps `cm", 0, 0);
     drawd((int)frames_per_second, 4, 0);
 
@@ -106,8 +112,6 @@ int main(int argc, char *argv[])
     drawd(hero_pos_x, 9, 0);
     draws("`by:`cm", 12, 0);
     drawd(hero_pos_y, 14, 0);
-
-    map_render();
 
     SDL_Flip(screen);
 
