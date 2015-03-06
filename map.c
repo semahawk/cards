@@ -34,7 +34,9 @@ static unsigned map_height = 64;
 void move_hero_up(void)
 {
   if (!(tile(hero_pos_x, hero_pos_y - 1) & TILE_UNPASSABLE))
-    if (hero_pos_y > 0)
+    /* the infobar takes one of height */
+    /* FIXME */
+    if (hero_pos_y > 1)
       hero_pos_y--;
 }
 
@@ -78,7 +80,7 @@ void map_render(void)
 {
   unsigned x, y;
 
-  /* default top-left coordinate of the chunk we want to display */
+  /* default top-left coordinate of the map's chunk we want to display */
   unsigned shown_chunk_x = hero_pos_x - center_x;
   unsigned shown_chunk_y = hero_pos_y - center_y;
 
@@ -94,25 +96,32 @@ void map_render(void)
     shown_chunk_y = map_height - WINDOW_ROWS;
 
   /* draw the chunk of the map onto the screen */
-  for (unsigned x = 0; x < WINDOW_COLS && x < map_width; x++){
-    for (unsigned y = 0; y < WINDOW_ROWS && y < map_height; y++){
+  /* starting from 1 to start below the infobar */
+  for (unsigned y = 1; y < WINDOW_ROWS && y < map_height; y++){
+    for (unsigned x = 0; x < WINDOW_COLS && x < map_width; x++){
       map_draw_tile(tile(shown_chunk_x + x, shown_chunk_y + y), x, y);
     }
   }
 
   /* keep the hero in the center of the screen, or draw him to the borders when
    * close */
+  /* getting close to the left border */
   if (hero_pos_x < center_x)
     x = hero_pos_x;
+  /* getting close to the right border */
   else if (hero_pos_x > map_width - center_x)
     x = WINDOW_COLS - (map_width - hero_pos_x);
+  /* far from either */
   else
     x = center_x;
 
+  /* getting close to the top border */
   if (hero_pos_y < center_y)
     y = hero_pos_y;
+  /* getting close to the bottom border */
   else if (hero_pos_y > map_height - center_y)
     y = WINDOW_ROWS - (map_height - hero_pos_y);
+  /* far from either */
   else
     y = center_y;
 
@@ -129,8 +138,10 @@ void map_init(void)
 
   map_tiles = malloc(sizeof(tile_t) * map_width * map_height);
 
+  printf("allocating a %ux%u (%d KiB) map\n", map_width, map_height, map_width * map_height);
+
   if (!map_tiles){
-    fprintf(stderr, "couldn't allocate memory for the map (%ux%u)\n", map_width, map_height);
+    fprintf(stderr, "couldn't allocate memory for the map\n");
     exit(1);
   }
 

@@ -63,6 +63,32 @@ void dispatch_event(SDL_Event event)
   }
 }
 
+void draw_infobar(void)
+{
+  int x = 0;
+
+  draws("`bfps `c", x, 0);
+  x += 5;
+  draws("   ", x, 0);
+
+  drawd((int)frames_per_second, x, 0);
+  x += 4;
+
+  draws("`bx:`c", x, 0);
+  x += 6;
+  draws("   ", x, 0);
+
+  drawd(hero_pos_x, x, 0);
+  x += 5;
+
+  draws("`by:`c", x, 0);
+  x += 6;
+  draws("   ", x, 0);
+
+  drawd(hero_pos_y, x, 0);
+  x += 4;
+}
+
 void cap_frame_rate(void)
 {
   static unsigned wait_time = 1000.0f / FRAMES_PER_SECOND_CAP;
@@ -102,13 +128,7 @@ int main(int argc, char *argv[])
 
     map_render();
 
-    draws("`bfps `cm", 0, 0);
-    drawd((int)frames_per_second, 4, 0);
-
-    draws("`bx:`cm", 7, 0);
-    drawd(hero_pos_x, 9, 0);
-    draws("`by:`cm", 12, 0);
-    drawd(hero_pos_y, 14, 0);
+    draw_infobar();
 
     SDL_Flip(screen);
 

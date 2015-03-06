@@ -67,12 +67,15 @@ void draws(const char *s, unsigned x, unsigned y)
     if (*p == '`'){
       p++;
 
-      if (*p != '`'){
+      if (*p != '`' && *p != '\0'){
+        /* TODO check if the color actually exists */
         current_color = *p;
+        continue;
         p++;
       }
     }
 
+    /* wrap onto the next line */
     if (x >= WINDOW_COLS){
       x = 0; y++;
     }
