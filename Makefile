@@ -4,6 +4,7 @@ CFLAGS = -g -W -Wall -std=c99 `sdl-config --cflags`
 PROJ = cards
 OBJS = \
 	main.o \
+	actor.o \
 	graphutils.o \
 	map.o \
 	text.o

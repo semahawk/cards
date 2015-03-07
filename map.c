@@ -12,15 +12,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
+#include "actor.h"
 #include "main.h"
 #include "map.h"
 
-/* use this macro to access a tile in position (x, y) from the map */
-#define tile(x,y) (map_tiles)[(x) * map_height + (y)]
-
 /* a one dimensional array */
-static tile_t *map_tiles;
+tile_t *map_tiles;
 
 static unsigned center_x;
 static unsigned center_y;
@@ -28,37 +27,31 @@ static unsigned center_y;
 unsigned hero_pos_x = 0;
 unsigned hero_pos_y = 0;
 
-static unsigned map_width = 128;
-static unsigned map_height = 64;
+unsigned map_width = 128;
+unsigned map_height = 64;
 
 void move_hero_up(void)
 {
-  if (!(tile(hero_pos_x, hero_pos_y - 1) & TILE_UNPASSABLE))
-    /* the infobar takes one of height */
-    /* FIXME */
-    if (hero_pos_y > 1)
-      hero_pos_y--;
+  if (is_passable(hero_pos_x, hero_pos_y - 1))
+    hero_pos_y--;
 }
 
 void move_hero_down(void)
 {
-  if (!(tile(hero_pos_x, hero_pos_y + 1) & TILE_UNPASSABLE))
-    if (hero_pos_y < map_height - 1)
-      hero_pos_y++;
+  if (is_passable(hero_pos_x, hero_pos_y + 1))
+    hero_pos_y++;
 }
 
 void move_hero_left(void)
 {
-  if (!(tile(hero_pos_x - 1, hero_pos_y) & TILE_UNPASSABLE))
-    if (hero_pos_x > 0)
-      hero_pos_x--;
+  if (is_passable(hero_pos_x - 1, hero_pos_y))
+    hero_pos_x--;
 }
 
 void move_hero_right(void)
 {
-  if (!(tile(hero_pos_x + 1, hero_pos_y) & TILE_UNPASSABLE))
-    if (hero_pos_x < map_width - 1)
-      hero_pos_x++;
+  if (is_passable(hero_pos_x + 1, hero_pos_y))
+    hero_pos_x++;
 }
 
 void map_draw_tile(tile_t tile, unsigned x, unsigned y)
@@ -69,6 +62,9 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
       break;
     case TILE_TREE:
       draws("`go", x, y);
+      break;
+    case TILE_ACTOR:
+      draws("`y@", x, y);
       break;
     default:
       draws("`r?", x, y);
@@ -100,6 +96,21 @@ void map_render(void)
   for (unsigned y = 1; y < WINDOW_ROWS && y < map_height; y++){
     for (unsigned x = 0; x < WINDOW_COLS && x < map_width; x++){
       map_draw_tile(tile(shown_chunk_x + x, shown_chunk_y + y), x, y);
+    }
+  }
+
+  struct actor actor;
+  /* draw the actors */
+  for (unsigned i = 0; i < 10; i++){
+    actor = actors[i];
+
+    /* see if the actor's position is contained within the displayed chunk */
+    if ((actor.pos.x >= shown_chunk_x && actor.pos.x < shown_chunk_x + WINDOW_COLS) &&
+        (actor.pos.y >= shown_chunk_y && actor.pos.y < shown_chunk_y + WINDOW_ROWS)){
+      unsigned on_the_screen_x = actor.pos.x - shown_chunk_x;
+      unsigned on_the_screen_y = actor.pos.y - shown_chunk_y;
+
+      map_draw_tile(TILE_ACTOR, on_the_screen_x, on_the_screen_y);
     }
   }
 
@@ -153,12 +164,32 @@ void map_init(void)
   }
 
   /* make some of the tiles be trees */
-  for (unsigned i = 0; i < (map_width * map_height) / 59; i++){
+  for (unsigned i = 0; i < (map_width * map_height) / 73; i++){
     unsigned x = rand() % map_width;
     unsigned y = rand() % map_height;
 
     if (tile(x, y) == TILE_TREE) continue;
     else tile(x, y) = TILE_TREE;
+  }
+
+  {
+    unsigned i = 0, j = 0;
+
+    for (; i < 10; i++){
+      struct actor actor;
+      unsigned x = rand() % map_width;
+      unsigned y = rand() % map_height;
+
+      while (tile(x, y) & TILE_UNPASSABLE){
+        x = rand() % map_width;
+        y = rand() % map_height;
+      }
+
+      actor.pos.x = x;
+      actor.pos.y = y;
+
+      actors[j++] = actor;
+    }
   }
 }
 

@@ -18,6 +18,7 @@
 
 #include <SDL/SDL.h>
 
+#include "actor.h"
 #include "main.h"
 #include "text.h"
 #include "map.h"
@@ -126,6 +127,7 @@ int main(int argc, char *argv[])
 
     dispatch_event(event);
 
+    update_actors();
     map_render();
 
     draw_infobar();
