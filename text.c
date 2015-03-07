@@ -167,6 +167,9 @@ void text_init2(void)
 void text_fini(void)
 {
   SDL_FreeSurface(font_bitmap);
+
+  for (struct color *color = colors; color->code != '\0'; color++)
+    SDL_FreeSurface(color->bitmap);
 }
 
 /*
