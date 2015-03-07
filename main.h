@@ -15,7 +15,7 @@
 
 #include "text.h"
 
-#define FRAMES_PER_SECOND_CAP 30
+#define FRAMES_PER_SECOND_CAP 25
 
 extern unsigned WINDOW_COLS, WINDOW_ROWS;
 

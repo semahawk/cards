@@ -32,6 +32,8 @@ float frame_time, frames_per_second;
 SDL_Surface *screen = NULL;
 
 bool running = true;
+bool update  = false;
+unsigned turn = 0;
 
 void dispatch_event(SDL_Event event)
 {
@@ -39,25 +41,31 @@ void dispatch_event(SDL_Event event)
 
   if (keystate[SDLK_LEFT] || keystate[SDLK_h]){
     move_hero_left();
+    update = true;
   }
 
   if (keystate[SDLK_RIGHT] || keystate[SDLK_l]){
     move_hero_right();
+    update = true;
   }
 
   if (keystate[SDLK_UP] || keystate[SDLK_k]){
     move_hero_up();
+    update = true;
   }
 
   if (keystate[SDLK_DOWN] || keystate[SDLK_j]){
     move_hero_down();
+    update = true;
   }
 
   switch (event.type){
     case SDL_QUIT:
     case SDL_KEYDOWN:
       if (event.key.keysym.sym == SDLK_ESCAPE)
-          running = false;
+        running = false;
+      else if (event.key.keysym.sym == SDLK_PERIOD)
+        update = true;
       break;
     default:
       /* nop */;
@@ -88,6 +96,10 @@ void draw_infobar(void)
 
   drawd(hero_pos_y, x, 0);
   x += 4;
+
+  draws("`bturn:`c", x, 0);
+  x += 8;
+  drawd(turn, x, 0);
 }
 
 void cap_frame_rate(void)
@@ -122,17 +134,28 @@ int main(int argc, char *argv[])
 
   map_init();
 
+  map_render();
+  draw_infobar();
+  SDL_Flip(screen);
+
   while (running){
     SDL_PollEvent(&event);
 
     dispatch_event(event);
 
-    update_actors();
-    map_render();
+    if (update){
+      update_actors();
+      map_render();
+
+      SDL_Flip(screen);
+
+      turn++;
+    }
 
     draw_infobar();
-
     SDL_Flip(screen);
+
+    update = false;
 
     get_ticks = SDL_GetTicks();
     frame_time_delta = get_ticks - frame_time_last;
