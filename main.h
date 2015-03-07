@@ -13,9 +13,12 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "text.h"
+#include <SDL/SDL.h>
 
-#define FRAMES_PER_SECOND_CAP 25
+#define FPS_CAP       (25)
+
+#define GAME_SPEED    (13)
+#define MAX_FRAMESKIP (10)
 
 extern unsigned WINDOW_COLS, WINDOW_ROWS;
 

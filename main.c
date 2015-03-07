@@ -25,51 +25,81 @@
 
 unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
 
-float alpha = 0.05;
-Uint32 get_ticks, frame_time_delta, frame_time_last;
-float frame_time, frames_per_second;
+float frames_per_second;
 
 SDL_Surface *screen = NULL;
 
 bool running = true;
-bool update  = false;
+bool next_turn  = false;
 unsigned turn = 0;
 
-void dispatch_event(SDL_Event event)
+void handle_events()
 {
+  SDL_Event event;
+
+  SDL_PollEvent(&event);
+
   Uint8* keystate = SDL_GetKeyState(NULL);
 
   if (keystate[SDLK_LEFT] || keystate[SDLK_h]){
     move_hero_left();
-    update = true;
+    next_turn = true;
   }
 
   if (keystate[SDLK_RIGHT] || keystate[SDLK_l]){
     move_hero_right();
-    update = true;
+    next_turn = true;
   }
 
   if (keystate[SDLK_UP] || keystate[SDLK_k]){
     move_hero_up();
-    update = true;
+    next_turn = true;
   }
 
   if (keystate[SDLK_DOWN] || keystate[SDLK_j]){
     move_hero_down();
-    update = true;
+    next_turn = true;
   }
+
+  if (keystate[SDLK_PERIOD])
+    next_turn = true;
 
   switch (event.type){
     case SDL_QUIT:
     case SDL_KEYDOWN:
       if (event.key.keysym.sym == SDLK_ESCAPE)
         running = false;
-      else if (event.key.keysym.sym == SDLK_PERIOD)
-        update = true;
       break;
     default:
-      /* nop */;
+      break;
   }
+}
+
+void cap_frame_rate(void)
+{
+  static unsigned wait_time = 1000.0f / FPS_CAP;
+  static unsigned frame_start_time = 0;
+  static int delay_time;
+
+  delay_time = wait_time - (SDL_GetTicks() - frame_start_time);
+
+  if (delay_time > 0)
+    SDL_Delay((unsigned)delay_time);
+
+  frame_start_time = SDL_GetTicks();
+}
+
+void count_fps(void)
+{
+  static float alpha = 0.05;
+  static Uint32 get_ticks, frame_time_delta, frame_time_last;
+  static float frame_time;
+
+  get_ticks = SDL_GetTicks();
+  frame_time_delta = get_ticks - frame_time_last;
+  frame_time_last = get_ticks;
+  frame_time = alpha * frame_time_delta + (1.0 - alpha) * frame_time;
+  frames_per_second = 1000.0 / frame_time;
 }
 
 void draw_infobar(void)
@@ -102,24 +132,13 @@ void draw_infobar(void)
   drawd(turn, x, 0);
 }
 
-void cap_frame_rate(void)
+void update_world(void)
 {
-  static unsigned wait_time = 1000.0f / FRAMES_PER_SECOND_CAP;
-  static unsigned frame_start_time = 0;
-  static int delay_time;
-
-  delay_time = wait_time - (SDL_GetTicks() - frame_start_time);
-
-  if (delay_time > 0)
-    SDL_Delay((unsigned)delay_time);
-
-  frame_start_time = SDL_GetTicks();
+  update_actors();
 }
 
 int main(int argc, char *argv[])
 {
-  SDL_Event event;
-
   /* suspress warnings */
   (void)argc;
   (void)argv;
@@ -138,31 +157,31 @@ int main(int argc, char *argv[])
   draw_infobar();
   SDL_Flip(screen);
 
+  Uint32 next_game_tick = SDL_GetTicks();
+  int loops;
+
   while (running){
-    SDL_PollEvent(&event);
+    loops = 0;
 
-    dispatch_event(event);
+    while (SDL_GetTicks() > next_game_tick && loops < MAX_FRAMESKIP){
+      handle_events();
 
-    if (update){
-      update_actors();
-      map_render();
+      if (next_turn){
+        update_world();
 
-      SDL_Flip(screen);
+        turn++;
+      }
 
-      turn++;
+      next_turn = false;
+
+      next_game_tick += 1000 / GAME_SPEED;
+      loops++;
     }
 
+    map_render();
     draw_infobar();
     SDL_Flip(screen);
-
-    update = false;
-
-    get_ticks = SDL_GetTicks();
-    frame_time_delta = get_ticks - frame_time_last;
-    frame_time_last = get_ticks;
-    frame_time = alpha * frame_time_delta + (1.0 - alpha) * frame_time;
-    frames_per_second = 1000.0 / frame_time;
-
+    count_fps();
     cap_frame_rate();
   }
 

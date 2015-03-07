@@ -25,6 +25,7 @@ void text_fini(void);
 extern SDL_Rect font_bitmap_chars[256];
 
 extern unsigned font_height, font_width;
+extern char current_color;
 
 #endif /* TEXT_H */
 

@@ -17,6 +17,7 @@
 #include "actor.h"
 #include "main.h"
 #include "map.h"
+#include "text.h"
 
 /* a one dimensional array */
 tile_t *map_tiles;
@@ -110,7 +111,8 @@ void map_render(void)
       unsigned on_the_screen_x = actor.pos.x - shown_chunk_x;
       unsigned on_the_screen_y = actor.pos.y - shown_chunk_y;
 
-      map_draw_tile(TILE_ACTOR, on_the_screen_x, on_the_screen_y);
+      current_color = actor.color;
+      drawch(actor.face, on_the_screen_x, on_the_screen_y);
     }
   }
 
@@ -185,6 +187,8 @@ void map_init(void)
         y = rand() % map_height;
       }
 
+      actor.face = '@';
+      actor.color = 'y';
       actor.pos.x = x;
       actor.pos.y = y;
 

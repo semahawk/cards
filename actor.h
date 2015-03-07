@@ -19,6 +19,7 @@ struct position {
 
 struct actor {
   char face;
+  char color;
   struct position pos;
 };
 
