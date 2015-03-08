@@ -15,6 +15,8 @@
 
 #include <SDL/SDL.h>
 
+#include "stack.h"
+
 #define FPS_CAP       (25)
 
 #define GAME_SPEED    (23)
@@ -27,6 +29,8 @@ extern SDL_Surface *screen;
 struct position {
   unsigned x, y;
 };
+
+typedef void (*renderer_t)(void);
 
 #endif /* MAIN_H */
 

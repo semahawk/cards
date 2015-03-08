@@ -20,6 +20,7 @@ void dump_inventory(void);
 
 void inventory_init(void);
 void inventory_fini(void);
+void inventory_renderer(void);
 
 #endif /* INVENTORY_H */
 

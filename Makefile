@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -g -W -Wall -std=c99 `sdl-config --cflags`
+CFLAGS = -save-temps -g -W -Wall -std=c99 `sdl-config --cflags`
 
 PROJ = cards
 OBJS = \
@@ -22,7 +22,7 @@ run: all
 	./$(PROJ)
 
 clean:
-	rm -f *.o
+	rm -f *.[ois]
 
 distclean: clean
 	rm -f $(PROJ)

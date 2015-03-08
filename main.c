@@ -23,6 +23,7 @@
 #include "text.h"
 #include "inventory.h"
 #include "map.h"
+#include "stack.h"
 
 unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
 
@@ -34,8 +35,11 @@ bool running = true;
 bool next_turn  = false;
 unsigned turn = 0;
 
+STACK_DECLARE(renderers, renderer_t);
+
 void handle_events()
 {
+  /* {{{ */
   SDL_Event event;
 
   SDL_PollEvent(&event);
@@ -71,7 +75,15 @@ void handle_events()
       if (event.key.keysym.sym == SDLK_ESCAPE)
         running = false;
       else if (event.key.keysym.sym == SDLK_i){
-        dump_inventory();
+        static bool inv_shown = true;
+
+        if (inv_shown){
+          STACK_PUSH(renderers, inventory_renderer);
+        } else {
+          (void)(STACK_POP(renderers));
+        }
+
+        inv_shown = !inv_shown;
       }
       else if (event.key.keysym.sym == SDLK_p){
         struct item item;
@@ -88,10 +100,12 @@ void handle_events()
     default:
       break;
   }
+  /* }}} */
 }
 
 void cap_frame_rate(void)
 {
+  /* {{{ */
   static unsigned wait_time = 1000.0f / FPS_CAP;
   static unsigned frame_start_time = 0;
   static int delay_time;
@@ -102,10 +116,12 @@ void cap_frame_rate(void)
     SDL_Delay((unsigned)delay_time);
 
   frame_start_time = SDL_GetTicks();
+  /* }}} */
 }
 
 void count_fps(void)
 {
+  /* {{{ */
   static float alpha = 0.05;
   static Uint32 get_ticks, frame_time_delta, frame_time_last;
   static float frame_time;
@@ -115,10 +131,12 @@ void count_fps(void)
   frame_time_last = get_ticks;
   frame_time = alpha * frame_time_delta + (1.0 - alpha) * frame_time;
   frames_per_second = 1000.0 / frame_time;
+  /* }}} */
 }
 
 void draw_infobar(void)
 {
+  /* {{{ */
   int x = 0;
 
   count_fps();
@@ -147,6 +165,7 @@ void draw_infobar(void)
   draws("`bturn:`c", x, 0);
   x += 8;
   drawd(turn, x, 0);
+  /* }}} */
 }
 
 void update_world(void)
@@ -156,6 +175,8 @@ void update_world(void)
 
 int main(int argc, char *argv[])
 {
+  STACK_DEFINE(renderers, 3);
+
   /* suspress warnings */
   (void)argc;
   (void)argv;
@@ -170,7 +191,9 @@ int main(int argc, char *argv[])
 
   map_init();
 
-  map_render();
+  STACK_PUSH(renderers, map_renderer);
+
+  STACK_TOP(renderers)();
   /*draw_infobar();*/
   inventory_init();
   SDL_Flip(screen);
@@ -196,7 +219,7 @@ int main(int argc, char *argv[])
       loops++;
     }
 
-    map_render();
+    STACK_TOP(renderers)();
     /*draw_infobar();*/
     SDL_Flip(screen);
     cap_frame_rate();

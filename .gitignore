@@ -1,4 +1,6 @@
 cards
 
 *.o
+*.s
+*.i
 *.core

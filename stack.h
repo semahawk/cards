@@ -13,17 +13,27 @@
 #ifndef STACK_H
 #define STACK_H
 
-#define STACK_DECLARE(name, type)   \
-  typedef struct name##_stack {     \
-    unsigned nmemb;                 \
-    type *curr;                     \
-    /* an array of stack slots */   \
-    type *slots;                    \
-  } name##_stack_t;                 \
-                                    \
-  name##_stack_t var_##name##_stack;
+#define STACK_DECLARE(name, type)        \
+  struct {          \
+    unsigned nmemb;                      \
+    type *curr;                          \
+    /* an array of stack slots */        \
+    type *slots;                         \
+  }                                      \
+                                         \
+  var_##name##_stack
 
-#define STACK_DEFINE(name, size)                                        \
+#define STACK_DECLARE_EXTERN(name, type) \
+  extern struct {          \
+    unsigned nmemb;                      \
+    type *curr;                          \
+    /* an array of stack slots */        \
+    type *slots;                         \
+  }                                      \
+                                         \
+  var_##name##_stack
+
+#define STACK_DEFINE(name, size)                                              \
   do {                                                                        \
     var_##name##_stack.nmemb = size;                                          \
     var_##name##_stack.slots = malloc(sizeof(*var_##name##_stack.slots)*size);\
@@ -54,6 +64,9 @@
 /* TODO handle underflow */
 #define STACK_POP(name) \
   (*(--var_##name##_stack.curr))
+
+#define STACK_TOP(name) \
+  (*(var_##name##_stack.curr - 1))
 
 #define STACK_ITER(name, type, p) \
   for (type *p = var_##name##_stack.slots; p != var_##name##_stack.curr; p++)

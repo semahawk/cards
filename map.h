@@ -15,6 +15,8 @@
 
 #include <stdbool.h>
 
+#include "main.h"
+
 typedef unsigned char tile_t;
 
 /* defines whether the hero can walk on the tile */
@@ -38,7 +40,7 @@ void move_hero_right(void);
 
 void map_init(void);
 void map_fini(void);
-void map_render(void);
+void map_renderer(void);
 
 /* use this macro to access a tile in position (x, y) from the map */
 #define tile(x,y) (map_tiles)[(x) * map_height + (y)]

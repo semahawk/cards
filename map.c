@@ -74,7 +74,7 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
   }
 }
 
-void map_render(void)
+void map_renderer(void)
 {
   unsigned x, y;
 

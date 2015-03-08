@@ -30,6 +30,26 @@ void inventory_fini(void)
   STACK_FINI(inv);
 }
 
+void inventory_renderer(void)
+{
+  unsigned y = 0;
+
+  for (unsigned x = 0; x < WINDOW_COLS; x++){
+    for (y = 0; y < WINDOW_ROWS; y++){
+      drawch(' ', x, y);
+    }
+  }
+
+  y = 3;
+  draws("`yinventory list:", 3, y++);
+
+  STACK_ITER(inv, struct item, item){
+    current_color = 'w';
+    draws("- ", 3, y);
+    draws(item->name, 5, y++);
+  }
+}
+
 void add_to_inventory(struct item item)
 {
   STACK_PUSH(inv, item);
