@@ -17,6 +17,7 @@
 #include "actor.h"
 #include "main.h"
 #include "map.h"
+#include "item.h"
 #include "text.h"
 
 /* a one dimensional array */
@@ -94,9 +95,25 @@ void map_render(void)
 
   /* draw the chunk of the map onto the screen */
   /* starting from 1 to start below the infobar */
-  for (unsigned y = 1; y < WINDOW_ROWS && y < map_height; y++){
+  for (unsigned y = 0; y < WINDOW_ROWS && y < map_height; y++){
     for (unsigned x = 0; x < WINDOW_COLS && x < map_width; x++){
       map_draw_tile(tile(shown_chunk_x + x, shown_chunk_y + y), x, y);
+    }
+  }
+
+  struct item item;
+  /* draw the items */
+  for (unsigned i = 0; i < 10; i++){
+    item = items[i];
+
+    /* see if the actor's position is contained within the displayed chunk */
+    if ((item.pos.x >= shown_chunk_x && item.pos.x < shown_chunk_x + WINDOW_COLS) &&
+        (item.pos.y >= shown_chunk_y && item.pos.y < shown_chunk_y + WINDOW_ROWS)){
+      unsigned on_the_screen_x = item.pos.x - shown_chunk_x;
+      unsigned on_the_screen_y = item.pos.y - shown_chunk_y;
+
+      current_color = item.color;
+      drawch(item.face, on_the_screen_x, on_the_screen_y);
     }
   }
 
@@ -137,6 +154,14 @@ void map_render(void)
   /* far from either */
   else
     y = center_y;
+
+  for (int i = 0; i < 10; i++){
+    item = items[i];
+
+    if (hero_pos_x == item.pos.x && hero_pos_y == item.pos.y){
+      draws(item.name, x - strlen(item.name) / 2, y - 2);
+    }
+  }
 
   draws("`b\1", x, y);
 }
@@ -182,7 +207,7 @@ void map_init(void)
       unsigned x = rand() % map_width;
       unsigned y = rand() % map_height;
 
-      while (tile(x, y) & TILE_UNPASSABLE){
+      while (!is_passable(x, y)){
         x = rand() % map_width;
         y = rand() % map_height;
       }
@@ -193,6 +218,30 @@ void map_init(void)
       actor.pos.y = y;
 
       actors[j++] = actor;
+    }
+  }
+
+  {
+    unsigned i = 0, j = 0;
+
+    for (; i < 10; i++){
+      struct item item;
+      unsigned x = rand() % map_width;
+      unsigned y = rand() % map_height;
+
+      while (!is_passable(x, y)){
+        x = rand() % map_width;
+        y = rand() % map_height;
+      }
+
+      unsigned choice = rand() % 3;
+      strcpy(item.name, (char *[]){"Sword", "Axe", "Wooden Stick"}[choice]);
+      item.face  = (char []){'!', 20, '/'}[choice];
+      item.color = (char []){'y', 'r', 'w'}[choice];
+      item.pos.x = x;
+      item.pos.y = y;
+
+      items[j++] = item;
     }
   }
 }

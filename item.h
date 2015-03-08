@@ -1,8 +1,8 @@
 /*
  *
- * actor.h
+ * item.h
  *
- * Created at:  Sat Mar  7 13:20:55 2015 13:20:55
+ * Created at:  Sun Mar  8 00:02:29 2015 00:02:29
  *
  * Author:  Szymon Urbaś <szymon.urbas@aol.com>
  *
@@ -10,22 +10,21 @@
  *
  */
 
-#ifndef ACTOR_H
-#define ACTOR_H
+#ifndef ITEM_H
+#define ITEM_H
 
 #include "main.h"
 
-struct actor {
+struct item {
+  char name[16];
   char face;
   char color;
   struct position pos;
 };
 
-void update_actors(void);
+extern struct item items[10];
 
-extern struct actor actors[10];
-
-#endif /* ACTOR_H */
+#endif /* ITEM_H */
 
 /*
  * vi: ft=c:ts=2:sw=2:expandtab

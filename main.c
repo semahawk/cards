@@ -21,6 +21,7 @@
 #include "actor.h"
 #include "main.h"
 #include "text.h"
+#include "inventory.h"
 #include "map.h"
 
 unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
@@ -69,6 +70,20 @@ void handle_events()
     case SDL_KEYDOWN:
       if (event.key.keysym.sym == SDLK_ESCAPE)
         running = false;
+      else if (event.key.keysym.sym == SDLK_i){
+        dump_inventory();
+      }
+      else if (event.key.keysym.sym == SDLK_p){
+        struct item item;
+        for (int i = 0; i < 10; i++){
+          item = items[i];
+
+          if (item.pos.x == hero_pos_x && item.pos.y == hero_pos_y){
+            add_to_inventory(item);
+            /* TODO remove the item from the map */
+          }
+        }
+      }
       break;
     default:
       break;
@@ -105,6 +120,8 @@ void count_fps(void)
 void draw_infobar(void)
 {
   int x = 0;
+
+  count_fps();
 
   draws("`bfps `c", x, 0);
   x += 5;
@@ -154,7 +171,7 @@ int main(int argc, char *argv[])
   map_init();
 
   map_render();
-  draw_infobar();
+  /*draw_infobar();*/
   SDL_Flip(screen);
 
   Uint32 next_game_tick = SDL_GetTicks();
@@ -179,9 +196,8 @@ int main(int argc, char *argv[])
     }
 
     map_render();
-    draw_infobar();
+    /*draw_infobar();*/
     SDL_Flip(screen);
-    count_fps();
     cap_frame_rate();
   }
 

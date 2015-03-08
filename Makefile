@@ -7,6 +7,8 @@ OBJS = \
 	actor.o \
 	graphutils.o \
 	map.o \
+	inventory.o \
+	item.o \
 	text.o
 
 LIBS = `sdl-config --libs`
