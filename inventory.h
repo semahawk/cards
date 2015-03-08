@@ -15,8 +15,11 @@
 
 #include "item.h"
 
-bool add_to_inventory(struct item);
+void add_to_inventory(struct item);
 void dump_inventory(void);
+
+void inventory_init(void);
+void inventory_fini(void);
 
 #endif /* INVENTORY_H */
 

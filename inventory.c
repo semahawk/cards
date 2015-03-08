@@ -15,26 +15,30 @@
 #include <stdbool.h>
 
 #include "item.h"
+#include "stack.h"
 #include "text.h"
 
-struct item inventory[10];
+STACK_DECLARE(inv, struct item);
 
-static unsigned curr = 0;
-
-bool add_to_inventory(struct item item)
+void inventory_init(void)
 {
-  if (curr >= 10)
-    return false;
+  STACK_DEFINE(inv, 16);
+}
 
-  inventory[curr++] = item;
+void inventory_fini(void)
+{
+  STACK_FINI(inv);
+}
 
-  return true;
+void add_to_inventory(struct item item)
+{
+  STACK_PUSH(inv, item);
 }
 
 void dump_inventory(void)
 {
-  for (unsigned i = 0; i < curr; i++){
-    printf("#%d - %s\n", i, inventory[i].name);
+  STACK_ITER(inv, struct item, item){
+    printf("#%p - %s\n", (void *)item, item->name);
     fflush(stdout);
   }
 }

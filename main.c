@@ -172,6 +172,7 @@ int main(int argc, char *argv[])
 
   map_render();
   /*draw_infobar();*/
+  inventory_init();
   SDL_Flip(screen);
 
   Uint32 next_game_tick = SDL_GetTicks();
@@ -201,6 +202,7 @@ int main(int argc, char *argv[])
     cap_frame_rate();
   }
 
+  inventory_fini();
   map_fini();
   text_fini();
 
