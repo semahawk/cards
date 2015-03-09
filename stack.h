@@ -68,6 +68,9 @@
 #define STACK_TOP(name) \
   (*(var_##name##_stack.curr - 1))
 
+#define STACK_EMPTY(name) \
+  (var_##name##_stack.curr == var_##name##_stack.slots)
+
 #define STACK_ITER(name, type, p) \
   for (type *p = var_##name##_stack.slots; p != var_##name##_stack.curr; p++)
 

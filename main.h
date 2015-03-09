@@ -13,6 +13,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <stdbool.h>
 #include <SDL/SDL.h>
 
 #include "stack.h"
@@ -25,12 +26,13 @@
 extern unsigned WINDOW_COLS, WINDOW_ROWS;
 
 extern SDL_Surface *screen;
+extern bool next_turn;
 
 struct position {
   unsigned x, y;
 };
 
-typedef void (*renderer_t)(void);
+void stop_running(void);
 
 #endif /* MAIN_H */
 

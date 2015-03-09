@@ -17,7 +17,10 @@
 #include "actor.h"
 #include "main.h"
 #include "map.h"
+#include "event.h"
 #include "item.h"
+#include "render.h"
+#include "inventory.h"
 #include "text.h"
 
 /* a one dimensional array */
@@ -31,6 +34,8 @@ unsigned hero_pos_y = 0;
 
 unsigned map_width = 128;
 unsigned map_height = 64;
+
+renderer_t map_renderer = (renderer_t){ map_renderer_preswitch, map_renderer_render };
 
 void move_hero_up(void)
 {
@@ -74,7 +79,20 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
   }
 }
 
-void map_renderer(void)
+void map_renderer_preswitch(void)
+{
+  event_clear_all();
+
+  event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, stop_running };
+  event_handlers[SDLK_h] = (event_handler_t){ true, move_hero_left };
+  event_handlers[SDLK_j] = (event_handler_t){ true, move_hero_down };
+  event_handlers[SDLK_k] = (event_handler_t){ true, move_hero_up };
+  event_handlers[SDLK_l] = (event_handler_t){ true, move_hero_right };
+  event_handlers[SDLK_i] = (event_handler_t){ false, inventory_open };
+  event_handlers[SDLK_r] = (event_handler_t){ false, dump_renderers };
+}
+
+void map_renderer_render(void)
 {
   unsigned x, y;
 

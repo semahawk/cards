@@ -20,9 +20,11 @@
 
 #include "actor.h"
 #include "main.h"
+#include "event.h"
 #include "text.h"
 #include "inventory.h"
 #include "map.h"
+#include "render.h"
 #include "stack.h"
 
 unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
@@ -34,74 +36,6 @@ SDL_Surface *screen = NULL;
 bool running = true;
 bool next_turn  = false;
 unsigned turn = 0;
-
-STACK_DECLARE(renderers, renderer_t);
-
-void handle_events()
-{
-  /* {{{ */
-  SDL_Event event;
-
-  SDL_PollEvent(&event);
-
-  Uint8* keystate = SDL_GetKeyState(NULL);
-
-  if (keystate[SDLK_LEFT] || keystate[SDLK_h]){
-    move_hero_left();
-    next_turn = true;
-  }
-
-  if (keystate[SDLK_RIGHT] || keystate[SDLK_l]){
-    move_hero_right();
-    next_turn = true;
-  }
-
-  if (keystate[SDLK_UP] || keystate[SDLK_k]){
-    move_hero_up();
-    next_turn = true;
-  }
-
-  if (keystate[SDLK_DOWN] || keystate[SDLK_j]){
-    move_hero_down();
-    next_turn = true;
-  }
-
-  if (keystate[SDLK_PERIOD])
-    next_turn = true;
-
-  switch (event.type){
-    case SDL_QUIT:
-    case SDL_KEYDOWN:
-      if (event.key.keysym.sym == SDLK_ESCAPE)
-        running = false;
-      else if (event.key.keysym.sym == SDLK_i){
-        static bool inv_shown = true;
-
-        if (inv_shown){
-          STACK_PUSH(renderers, inventory_renderer);
-        } else {
-          (void)(STACK_POP(renderers));
-        }
-
-        inv_shown = !inv_shown;
-      }
-      else if (event.key.keysym.sym == SDLK_p){
-        struct item item;
-        for (int i = 0; i < 10; i++){
-          item = items[i];
-
-          if (item.pos.x == hero_pos_x && item.pos.y == hero_pos_y){
-            add_to_inventory(item);
-            /* TODO remove the item from the map */
-          }
-        }
-      }
-      break;
-    default:
-      break;
-  }
-  /* }}} */
-}
 
 void cap_frame_rate(void)
 {
@@ -168,6 +102,11 @@ void draw_infobar(void)
   /* }}} */
 }
 
+void stop_running(void)
+{
+  running = false;
+}
+
 void update_world(void)
 {
   update_actors();
@@ -175,8 +114,6 @@ void update_world(void)
 
 int main(int argc, char *argv[])
 {
-  STACK_DEFINE(renderers, 3);
-
   /* suspress warnings */
   (void)argc;
   (void)argv;
@@ -189,13 +126,17 @@ int main(int argc, char *argv[])
   screen = SDL_SetVideoMode(WINDOW_COLS * font_width, WINDOW_ROWS * font_height, 32, SDL_HWSURFACE);
   text_init2();
 
+  event_init();
+  render_init();
   map_init();
 
-  STACK_PUSH(renderers, map_renderer);
+  render_setnew(map_renderer);
 
-  STACK_TOP(renderers)();
-  /*draw_infobar();*/
+  (STACK_TOP(renderers)).render();
+
+  draw_infobar();
   inventory_init();
+
   SDL_Flip(screen);
 
   Uint32 next_game_tick = SDL_GetTicks();
@@ -219,9 +160,11 @@ int main(int argc, char *argv[])
       loops++;
     }
 
-    STACK_TOP(renderers)();
-    /*draw_infobar();*/
+    (STACK_TOP(renderers)).render();
+
+    draw_infobar();
     SDL_Flip(screen);
+
     cap_frame_rate();
   }
 

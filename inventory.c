@@ -17,8 +17,13 @@
 #include "item.h"
 #include "stack.h"
 #include "text.h"
+#include "inventory.h"
+#include "event.h"
 
 STACK_DECLARE(inv, struct item);
+
+renderer_t inventory_renderer =
+  (renderer_t){ inventory_renderer_preswitch, inventory_renderer_render };
 
 void inventory_init(void)
 {
@@ -30,7 +35,15 @@ void inventory_fini(void)
   STACK_FINI(inv);
 }
 
-void inventory_renderer(void)
+void inventory_renderer_preswitch(void)
+{
+  event_clear_all();
+
+  event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, inventory_close };
+  event_handlers[SDLK_r] = (event_handler_t){ false, dump_renderers };
+}
+
+void inventory_renderer_render(void)
 {
   unsigned y = 0;
 

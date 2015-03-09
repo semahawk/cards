@@ -5,9 +5,11 @@ PROJ = cards
 OBJS = \
 	main.o \
 	actor.o \
+	event.o \
 	graphutils.o \
 	map.o \
 	inventory.o \
+	render.o \
 	item.o \
 	text.o
 
