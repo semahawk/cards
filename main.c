@@ -34,7 +34,7 @@ float frames_per_second;
 SDL_Surface *screen = NULL;
 
 bool running = true;
-bool next_turn  = false;
+bool action_issued  = false;
 unsigned turn = 0;
 
 void cap_frame_rate(void)
@@ -107,9 +107,11 @@ void stop_running(void)
   running = false;
 }
 
-void update_world(void)
+void next_turn(void)
 {
   update_actors();
+
+  turn++;
 }
 
 int main(int argc, char *argv[])
@@ -148,13 +150,10 @@ int main(int argc, char *argv[])
     while (SDL_GetTicks() > next_game_tick && loops < MAX_FRAMESKIP){
       handle_events();
 
-      if (next_turn){
-        update_world();
+      if (action_issued)
+        next_turn();
 
-        turn++;
-      }
-
-      next_turn = false;
+      action_issued = false;
 
       next_game_tick += 1000 / GAME_SPEED;
       loops++;

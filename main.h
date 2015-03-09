@@ -16,8 +16,6 @@
 #include <stdbool.h>
 #include <SDL/SDL.h>
 
-#include "stack.h"
-
 #define FPS_CAP       (25)
 
 #define GAME_SPEED    (23)
@@ -26,7 +24,7 @@
 extern unsigned WINDOW_COLS, WINDOW_ROWS;
 
 extern SDL_Surface *screen;
-extern bool next_turn;
+extern bool action_issued;
 
 struct position {
   unsigned x, y;

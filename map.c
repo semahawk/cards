@@ -41,24 +41,32 @@ void move_hero_up(void)
 {
   if (is_passable(hero_pos_x, hero_pos_y - 1))
     hero_pos_y--;
+
+  action_issued = true;
 }
 
 void move_hero_down(void)
 {
   if (is_passable(hero_pos_x, hero_pos_y + 1))
     hero_pos_y++;
+
+  action_issued = true;
 }
 
 void move_hero_left(void)
 {
   if (is_passable(hero_pos_x - 1, hero_pos_y))
     hero_pos_x--;
+
+  action_issued = true;
 }
 
 void move_hero_right(void)
 {
   if (is_passable(hero_pos_x + 1, hero_pos_y))
     hero_pos_x++;
+
+  action_issued = true;
 }
 
 void map_draw_tile(tile_t tile, unsigned x, unsigned y)
