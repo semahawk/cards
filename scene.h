@@ -24,6 +24,7 @@ STACK_DECLARE(scenes, scene_t);
 
 void scene_init(void);
 void scene_setnew(scene_t);
+void scene_previous(void);
 void dump_scenes(void);
 
 #endif /* RENDER_H */

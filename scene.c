@@ -39,18 +39,6 @@ void scene_previous(void)
   (STACK_TOP(scenes)).preswitch();
 }
 
-void inventory_close(void)
-{
-  scene_previous();
-}
-
-void inventory_open(void)
-{
-  event_clear_all();
-
-  scene_setnew(inventory_scene);
-}
-
 void dump_scenes(void)
 {
   printf("scenes: ");

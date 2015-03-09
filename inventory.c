@@ -63,6 +63,16 @@ void inventory_scene_render(void)
   }
 }
 
+void inventory_close(void)
+{
+  scene_previous();
+}
+
+void inventory_open(void)
+{
+  scene_setnew(inventory_scene);
+}
+
 void add_to_inventory(struct item item)
 {
   STACK_PUSH(inv, item);
