@@ -78,9 +78,6 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
     case TILE_TREE:
       draws("`go", x, y);
       break;
-    case TILE_ACTOR:
-      draws("`y@", x, y);
-      break;
     default:
       draws("`r?", x, y);
       break;
@@ -189,7 +186,7 @@ void map_scene_render(void)
     }
   }
 
-  draws("`b\1", x, y);
+  draws("`b@", x, y);
 }
 
 void map_init(void)
@@ -238,7 +235,7 @@ void map_init(void)
         y = rand() % map_height;
       }
 
-      actor.face = '@';
+      actor.face = 'g';
       actor.color = 'y';
       actor.pos.x = x;
       actor.pos.y = y;

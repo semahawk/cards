@@ -26,7 +26,6 @@ typedef unsigned char tile_t;
 
 #define TILE_GRASS         (0x00)
 #define TILE_TREE          (0x01 | TILE_UNPASSABLE)
-#define TILE_ACTOR         (0x02)
 
 extern unsigned hero_pos_x;
 extern unsigned hero_pos_y;

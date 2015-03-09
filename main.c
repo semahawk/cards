@@ -27,7 +27,7 @@
 #include "scene.h"
 #include "stack.h"
 
-unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
+unsigned WINDOW_COLS = 128, WINDOW_ROWS = 92;
 
 float frames_per_second;
 

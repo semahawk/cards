@@ -18,7 +18,7 @@
 
 #define FPS_CAP       (25)
 
-#define GAME_SPEED    (23)
+#define GAME_SPEED    (13)
 #define MAX_FRAMESKIP (10)
 
 extern unsigned WINDOW_COLS, WINDOW_ROWS;
