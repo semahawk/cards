@@ -22,8 +22,8 @@
 
 STACK_DECLARE(inv, struct item);
 
-renderer_t inventory_renderer =
-  (renderer_t){ inventory_renderer_preswitch, inventory_renderer_render };
+scene_t inventory_scene =
+  (scene_t){ inventory_scene_preswitch, inventory_scene_render };
 
 void inventory_init(void)
 {
@@ -35,15 +35,15 @@ void inventory_fini(void)
   STACK_FINI(inv);
 }
 
-void inventory_renderer_preswitch(void)
+void inventory_scene_preswitch(void)
 {
   event_clear_all();
 
   event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, inventory_close };
-  event_handlers[SDLK_r] = (event_handler_t){ false, dump_renderers };
+  event_handlers[SDLK_r] = (event_handler_t){ false, dump_scenes };
 }
 
-void inventory_renderer_render(void)
+void inventory_scene_render(void)
 {
   unsigned y = 0;
 

@@ -19,7 +19,7 @@
 #include "map.h"
 #include "event.h"
 #include "item.h"
-#include "render.h"
+#include "scene.h"
 #include "inventory.h"
 #include "text.h"
 
@@ -35,7 +35,7 @@ unsigned hero_pos_y = 0;
 unsigned map_width = 128;
 unsigned map_height = 64;
 
-renderer_t map_renderer = (renderer_t){ map_renderer_preswitch, map_renderer_render };
+scene_t map_scene = (scene_t){ map_scene_preswitch, map_scene_render };
 
 void move_hero_up(void)
 {
@@ -79,7 +79,7 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
   }
 }
 
-void map_renderer_preswitch(void)
+void map_scene_preswitch(void)
 {
   event_clear_all();
 
@@ -89,10 +89,10 @@ void map_renderer_preswitch(void)
   event_handlers[SDLK_k] = (event_handler_t){ true, move_hero_up };
   event_handlers[SDLK_l] = (event_handler_t){ true, move_hero_right };
   event_handlers[SDLK_i] = (event_handler_t){ false, inventory_open };
-  event_handlers[SDLK_r] = (event_handler_t){ false, dump_renderers };
+  event_handlers[SDLK_r] = (event_handler_t){ false, dump_scenes };
 }
 
-void map_renderer_render(void)
+void map_scene_render(void)
 {
   unsigned x, y;
 

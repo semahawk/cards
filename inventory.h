@@ -14,7 +14,7 @@
 #define INVENTORY_H
 
 #include "item.h"
-#include "render.h"
+#include "scene.h"
 
 void add_to_inventory(struct item);
 void dump_inventory(void);
@@ -23,10 +23,10 @@ void inventory_init(void);
 void inventory_fini(void);
 void inventory_open(void);
 void inventory_close(void);
-void inventory_renderer_preswitch(void);
-void inventory_renderer_render(void);
+void inventory_scene_preswitch(void);
+void inventory_scene_render(void);
 
-extern renderer_t inventory_renderer;
+extern scene_t inventory_scene;
 
 #endif /* INVENTORY_H */
 

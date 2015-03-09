@@ -24,7 +24,7 @@
 #include "text.h"
 #include "inventory.h"
 #include "map.h"
-#include "render.h"
+#include "scene.h"
 #include "stack.h"
 
 unsigned WINDOW_COLS = 80, WINDOW_ROWS = 36;
@@ -127,12 +127,12 @@ int main(int argc, char *argv[])
   text_init2();
 
   event_init();
-  render_init();
+  scene_init();
   map_init();
 
-  render_setnew(map_renderer);
+  scene_setnew(map_scene);
 
-  (STACK_TOP(renderers)).render();
+  (STACK_TOP(scenes)).render();
 
   draw_infobar();
   inventory_init();
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
       loops++;
     }
 
-    (STACK_TOP(renderers)).render();
+    (STACK_TOP(scenes)).render();
 
     draw_infobar();
     SDL_Flip(screen);

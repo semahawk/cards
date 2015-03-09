@@ -9,7 +9,7 @@ OBJS = \
 	graphutils.o \
 	map.o \
 	inventory.o \
-	render.o \
+	scene.o \
 	item.o \
 	text.o
 

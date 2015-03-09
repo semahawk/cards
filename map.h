@@ -17,7 +17,7 @@
 
 #include "main.h"
 #include "actor.h"
-#include "render.h"
+#include "scene.h"
 
 typedef unsigned char tile_t;
 
@@ -42,10 +42,10 @@ void move_hero_right(void);
 
 void map_init(void);
 void map_fini(void);
-void map_renderer_preswitch(void);
-void map_renderer_render(void);
+void map_scene_preswitch(void);
+void map_scene_render(void);
 
-extern renderer_t map_renderer;
+extern scene_t map_scene;
 
 /* use this macro to access a tile in position (x, y) from the map */
 #define tile(x,y) (map_tiles)[(x) * map_height + (y)]

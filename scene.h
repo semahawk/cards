@@ -18,13 +18,13 @@
 typedef struct {
   void (*preswitch)(void);
   void (*render)(void);
-} renderer_t;
+} scene_t;
 
-STACK_DECLARE(renderers, renderer_t);
+STACK_DECLARE(scenes, scene_t);
 
-void render_init(void);
-void render_setnew(renderer_t);
-void dump_renderers(void);
+void scene_init(void);
+void scene_setnew(scene_t);
+void dump_scenes(void);
 
 #endif /* RENDER_H */
 
