@@ -22,6 +22,7 @@
 #include "scene.h"
 #include "inventory.h"
 #include "text.h"
+#include "duel.h"
 
 /* a one dimensional array */
 tile_t *map_tiles;
@@ -32,8 +33,8 @@ static unsigned center_y;
 unsigned hero_pos_x = 0;
 unsigned hero_pos_y = 0;
 
-unsigned map_width = 128;
-unsigned map_height = 64;
+unsigned map_width = 256;
+unsigned map_height = 256;
 
 scene_t map_scene = (scene_t){ map_scene_preswitch, map_scene_render };
 
@@ -95,6 +96,8 @@ void map_scene_preswitch(void)
   event_handlers[SDLK_l] = (event_handler_t){ true, move_hero_right };
   event_handlers[SDLK_i] = (event_handler_t){ false, inventory_open };
   event_handlers[SDLK_r] = (event_handler_t){ false, dump_scenes };
+  event_handlers[SDLK_PERIOD] = (event_handler_t){ true, next_turn };
+  event_handlers[SDLK_d] = (event_handler_t){ false, duel_begin };
 }
 
 void map_scene_render(void)
@@ -199,7 +202,8 @@ void map_init(void)
 
   map_tiles = malloc(sizeof(tile_t) * map_width * map_height);
 
-  printf("allocating a %ux%u (%d KiB) map\n", map_width, map_height, map_width * map_height);
+  printf("allocating a %ux%u (%d bytes) map\n", map_width, map_height,
+      sizeof(tile_t) * map_width * map_height);
 
   if (!map_tiles){
     fprintf(stderr, "couldn't allocate memory for the map\n");

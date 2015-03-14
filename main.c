@@ -21,13 +21,14 @@
 #include "actor.h"
 #include "main.h"
 #include "event.h"
+#include "duel.h"
 #include "text.h"
 #include "inventory.h"
 #include "map.h"
 #include "scene.h"
 #include "stack.h"
 
-unsigned WINDOW_COLS = 128, WINDOW_ROWS = 92;
+unsigned WINDOW_COLS = 128, WINDOW_ROWS = 96;
 
 float frames_per_second;
 

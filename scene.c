@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL/SDL.h>
+
 #include "scene.h"
 #include "stack.h"
 #include "event.h"
@@ -25,6 +27,8 @@ void scene_init(void)
 
 void scene_setnew(scene_t scene)
 {
+  SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+
   scene.preswitch();
 
   STACK_PUSH(scenes, scene);

@@ -5,6 +5,7 @@ PROJ = cards
 OBJS = \
 	main.o \
 	actor.o \
+	duel.o \
 	event.o \
 	graphutils.o \
 	map.o \

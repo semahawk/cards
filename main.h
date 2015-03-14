@@ -18,7 +18,7 @@
 
 #define FPS_CAP       (25)
 
-#define GAME_SPEED    (13)
+#define GAME_SPEED    (23)
 #define MAX_FRAMESKIP (10)
 
 extern unsigned WINDOW_COLS, WINDOW_ROWS;
@@ -31,6 +31,7 @@ struct position {
 };
 
 void stop_running(void);
+void next_turn(void);
 
 #endif /* MAIN_H */
 
