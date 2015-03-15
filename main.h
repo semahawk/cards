@@ -25,6 +25,7 @@ extern unsigned WINDOW_COLS, WINDOW_ROWS;
 
 extern SDL_Surface *screen;
 extern bool action_issued;
+extern unsigned turn;
 
 struct position {
   unsigned x, y;

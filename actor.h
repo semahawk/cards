@@ -15,13 +15,23 @@
 
 #include "main.h"
 
+enum effect {
+  EFFECT_NONE = 0,
+  EFFECT_TARGETED,
+  EFFECT_BURNING,
+};
+
 struct actor {
   char face;
   char color;
   struct position pos;
+  unsigned effect_num;
+  enum effect effects[12];
 };
 
 void update_actors(void);
+void actor_apply_effect(struct actor *, enum effect);
+void actor_remove_effect(struct actor *, enum effect);
 
 extern struct actor actors[10];
 

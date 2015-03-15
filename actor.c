@@ -37,6 +37,34 @@ void update_actors(void)
   }
 }
 
+void actor_apply_effect(struct actor *actor, enum effect effect)
+{
+  if (actor == NULL)
+    return;
+
+  for (unsigned i = 0; i < 12; i++){
+    if (actor->effects[i] == EFFECT_NONE){
+      actor->effects[i] = effect;
+      actor->effect_num++;
+      break;
+    }
+  }
+}
+
+void actor_remove_effect(struct actor *actor, enum effect effect)
+{
+  if (actor == NULL)
+    return;
+
+  for (unsigned i = 0; i < 12; i++){
+    if (actor->effects[i] == effect){
+      actor->effects[i] = EFFECT_NONE;
+      actor->effect_num--;
+      break;
+    }
+  }
+}
+
 /*
  * vi: ft=c:ts=2:sw=2:expandtab
  */

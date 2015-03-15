@@ -30,6 +30,11 @@ tile_t *map_tiles;
 static unsigned center_x;
 static unsigned center_y;
 
+static unsigned shown_chunk_x;
+static unsigned shown_chunk_y;
+
+static unsigned effect_counter = 0;
+
 unsigned hero_pos_x = 0;
 unsigned hero_pos_y = 0;
 
@@ -85,6 +90,87 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
   }
 }
 
+static struct actor *target = NULL;
+static struct position target_cursor_pos;
+
+void move_target_left(void)
+{
+  if (target_cursor_pos.x > 0)
+    target_cursor_pos.x--;
+}
+
+void move_target_down(void)
+{
+  if (target_cursor_pos.y < WINDOW_ROWS - 1)
+    target_cursor_pos.y++;
+}
+
+void move_target_up(void)
+{
+  if (target_cursor_pos.y > 0)
+    target_cursor_pos.y--;
+}
+
+void move_target_right(void)
+{
+  if (target_cursor_pos.x < WINDOW_COLS - 1)
+    target_cursor_pos.x++;
+}
+
+void target_scene_end(void);
+
+void target_set(void)
+{
+  static struct actor *prev = NULL;
+
+  for (unsigned i = 0; i < 10; i++){
+    if (actors[i].pos.x == target_cursor_pos.x + shown_chunk_x && actors[i].pos.y == target_cursor_pos.y + shown_chunk_y){
+      target = &actors[i];
+
+      if (prev)
+        actor_remove_effect(prev, EFFECT_TARGETED);
+
+      actor_apply_effect(target, EFFECT_TARGETED);
+
+      prev = target;
+    }
+  }
+}
+
+void target_scene_preswitch(void)
+{
+  event_clear_all();
+
+  event_handlers[SDLK_h] = (event_handler_t){ true, move_target_left };
+  event_handlers[SDLK_j] = (event_handler_t){ true, move_target_down };
+  event_handlers[SDLK_k] = (event_handler_t){ true, move_target_up };
+  event_handlers[SDLK_l] = (event_handler_t){ true, move_target_right };
+  event_handlers[SDLK_t] = (event_handler_t){ false, target_set };
+  event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, target_scene_end };
+
+  target_cursor_pos = (struct position){ WINDOW_COLS / 2, WINDOW_ROWS / 2 };
+}
+
+void target_scene_render(void)
+{
+  map_scene_render();
+
+  current_color = 'y';
+  drawch('X', target_cursor_pos.x, target_cursor_pos.y);
+}
+
+scene_t target_scene = (scene_t){ target_scene_preswitch, target_scene_render };
+
+void target_scene_begin(void)
+{
+  scene_setnew(target_scene);
+}
+
+void target_scene_end(void)
+{
+  scene_previous();
+}
+
 void map_scene_preswitch(void)
 {
   event_clear_all();
@@ -98,15 +184,20 @@ void map_scene_preswitch(void)
   event_handlers[SDLK_r] = (event_handler_t){ false, dump_scenes };
   event_handlers[SDLK_PERIOD] = (event_handler_t){ true, next_turn };
   event_handlers[SDLK_d] = (event_handler_t){ false, duel_begin };
+  event_handlers[SDLK_t] = (event_handler_t){ false, target_scene_begin };
 }
 
 void map_scene_render(void)
 {
+  static unsigned frames = 0;
   unsigned x, y;
 
+  if (++frames % 15 == 0)
+    effect_counter++;
+
   /* default top-left coordinate of the map's chunk we want to display */
-  unsigned shown_chunk_x = hero_pos_x - center_x;
-  unsigned shown_chunk_y = hero_pos_y - center_y;
+  shown_chunk_x = hero_pos_x - center_x;
+  shown_chunk_y = hero_pos_y - center_y;
 
   /* calculate the top-left chunk's corner coordinates */
   if (hero_pos_x < center_x)
@@ -154,8 +245,20 @@ void map_scene_render(void)
       unsigned on_the_screen_x = actor.pos.x - shown_chunk_x;
       unsigned on_the_screen_y = actor.pos.y - shown_chunk_y;
 
-      current_color = actor.color;
-      drawch(actor.face, on_the_screen_x, on_the_screen_y);
+      switch (effect_counter % (actor.effect_num + 1)){
+        case EFFECT_NONE:
+          current_color = actor.color;
+          drawch(actor.face, on_the_screen_x, on_the_screen_y);
+          break;
+        case EFFECT_TARGETED:
+          current_color = 'c';
+          drawch('X', on_the_screen_x, on_the_screen_y);
+          break;
+        case EFFECT_BURNING:
+          current_color = 'r';
+          drawch('~', on_the_screen_x, on_the_screen_y);
+          break;
+      }
     }
   }
 
@@ -243,6 +346,9 @@ void map_init(void)
       actor.color = 'y';
       actor.pos.x = x;
       actor.pos.y = y;
+
+      actor.effect_num = 0;
+      memset(actor.effects, EFFECT_NONE, sizeof(actor.effects));
 
       actors[j++] = actor;
     }
