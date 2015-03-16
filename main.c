@@ -19,14 +19,18 @@
 #include <SDL/SDL.h>
 
 #include "actor.h"
-#include "main.h"
 #include "event.h"
 #include "duel.h"
+#include "hero.h"
 #include "text.h"
 #include "inventory.h"
+#include "main.h"
 #include "map.h"
 #include "scene.h"
 #include "stack.h"
+#include "list.h"
+
+struct hero the_hero;
 
 unsigned WINDOW_COLS = 128, WINDOW_ROWS = 96;
 
@@ -117,6 +121,8 @@ void next_turn(void)
 
 int main(int argc, char *argv[])
 {
+  SLIST_INIT(&the_hero.inv);
+
   /* suspress warnings */
   (void)argc;
   (void)argv;

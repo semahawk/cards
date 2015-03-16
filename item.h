@@ -15,6 +15,10 @@
 
 #include "main.h"
 
+struct position {
+  unsigned x, y;
+};
+
 struct item {
   char name[16];
   char face;

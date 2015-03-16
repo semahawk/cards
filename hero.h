@@ -13,10 +13,16 @@
 #ifndef HERO_H
 #define HERO_H
 
-#define MAX_HERO_NAME_LEN 128
+#include "list.h"
+#include "inventory.h"
+#include "item.h"
+
+#define MAX_HERO_NAME_LEN 32
 
 struct hero {
   char name[MAX_HERO_NAME_LEN + 1];
+  SLIST_HEAD(, inv_elem) inv;
+  struct position pos;
 };
 
 #endif /* HERO_H */

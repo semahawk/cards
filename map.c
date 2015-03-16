@@ -171,6 +171,20 @@ void target_scene_end(void)
   scene_previous();
 }
 
+void pick_item(void)
+{
+  struct item *item;
+
+  for (int i = 0; i < 10; i++){
+    item = &items[i];
+
+    if (item->pos.x == hero_pos_x && item->pos.y == hero_pos_y){
+      add_to_inventory(item);
+      /* TODO remove the item from the map */
+    }
+  }
+}
+
 void map_scene_preswitch(void)
 {
   event_clear_all();
@@ -185,6 +199,7 @@ void map_scene_preswitch(void)
   event_handlers[SDLK_PERIOD] = (event_handler_t){ true, next_turn };
   event_handlers[SDLK_d] = (event_handler_t){ false, duel_begin };
   event_handlers[SDLK_t] = (event_handler_t){ false, target_scene_begin };
+  event_handlers[SDLK_p] = (event_handler_t){ false, pick_item };
 }
 
 void map_scene_render(void)

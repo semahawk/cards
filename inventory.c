@@ -14,25 +14,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "item.h"
 #include "stack.h"
 #include "text.h"
 #include "inventory.h"
+#include "item.h"
 #include "event.h"
-
-STACK_DECLARE(inv, struct item);
 
 scene_t inventory_scene =
   (scene_t){ inventory_scene_preswitch, inventory_scene_render };
 
 void inventory_init(void)
 {
-  STACK_DEFINE(inv, 16);
 }
 
 void inventory_fini(void)
 {
-  STACK_FINI(inv);
+  struct inv_elem *e;
+
+  while (!SLIST_EMPTY(&the_hero.inv)){
+    e = SLIST_FIRST(&the_hero.inv);
+    SLIST_REMOVE_HEAD(&the_hero.inv, inv_elem);
+    free(e);
+  }
 }
 
 void inventory_scene_preswitch(void)
@@ -56,10 +59,12 @@ void inventory_scene_render(void)
   y = 3;
   draws("`yinventory list:", 3, y++);
 
-  STACK_ITER(inv, struct item, item){
+  struct inv_elem *e;
+
+  SLIST_FOREACH(e, &the_hero.inv, inv_elem){
     current_color = 'w';
     draws("- ", 3, y);
-    draws(item->name, 5, y++);
+    draws(e->item->name, 5, y++);
   }
 }
 
@@ -73,15 +78,23 @@ void inventory_open(void)
   scene_setnew(inventory_scene);
 }
 
-void add_to_inventory(struct item item)
+void add_to_inventory(struct item *item)
 {
-  STACK_PUSH(inv, item);
+  struct inv_elem *n = malloc(sizeof(struct inv_elem));
+
+  n->item = item;
+
+  SLIST_INSERT_HEAD(&the_hero.inv, n, inv_elem);
+
+  printf("added %s to inventory\n", item->name);
 }
 
 void dump_inventory(void)
 {
-  STACK_ITER(inv, struct item, item){
-    printf("#%p - %s\n", (void *)item, item->name);
+  struct inv_elem *e;
+
+  SLIST_FOREACH(e, &the_hero.inv, inv_elem){
+    printf("#%p - %s\n", (void *)e, e->item->name);
     fflush(stdout);
   }
 }

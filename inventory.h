@@ -13,10 +13,16 @@
 #ifndef INVENTORY_H
 #define INVENTORY_H
 
-#include "item.h"
 #include "scene.h"
+#include "list.h"
+#include "item.h"
 
-void add_to_inventory(struct item);
+struct inv_elem {
+  struct item *item;
+  SLIST_ENTRY(inv_elem) inv_elem;
+};
+
+void add_to_inventory(struct item *);
 void dump_inventory(void);
 
 void inventory_init(void);

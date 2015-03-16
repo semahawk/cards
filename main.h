@@ -16,20 +16,20 @@
 #include <stdbool.h>
 #include <SDL/SDL.h>
 
+#include "hero.h"
+
 #define FPS_CAP       (25)
 
 #define GAME_SPEED    (23)
 #define MAX_FRAMESKIP (10)
+
+extern struct hero the_hero;
 
 extern unsigned WINDOW_COLS, WINDOW_ROWS;
 
 extern SDL_Surface *screen;
 extern bool action_issued;
 extern unsigned turn;
-
-struct position {
-  unsigned x, y;
-};
 
 void stop_running(void);
 void next_turn(void);
