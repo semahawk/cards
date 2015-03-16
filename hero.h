@@ -16,6 +16,7 @@
 #include "list.h"
 #include "inventory.h"
 #include "item.h"
+#include "position.h"
 
 #define MAX_HERO_NAME_LEN 32
 

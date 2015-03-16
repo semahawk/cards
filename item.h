@@ -14,10 +14,7 @@
 #define ITEM_H
 
 #include "main.h"
-
-struct position {
-  unsigned x, y;
-};
+#include "position.h"
 
 struct item {
   char name[16];
