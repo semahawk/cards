@@ -63,12 +63,10 @@ static inline bool is_passable(unsigned x, unsigned y)
     return false;
 
   {
-    struct actor actor;
+    struct actor *actor;
 
-    for (unsigned i = 0; i < 10; i++){
-      actor = actors[i];
-
-      if (actor.pos.x == x && actor.pos.y == y)
+    SLIST_FOREACH(actor, &actors, actor){
+      if (actor->pos.x == x && actor->pos.y == y)
         return false;
     }
   }

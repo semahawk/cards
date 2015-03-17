@@ -44,12 +44,11 @@ void shoot_projectile(void)
   SLIST_INSERT_HEAD(&projectiles, n, projectile);
 
   action_issued = true;
-
-  printf("new projectile %p, angle %f, speed %f, origin x %f, origin y %f\n", (void *)n, n->angle, n->speed, n->origin_x, n->origin_y);
 }
 
 void update_projectiles(void)
 {
+  struct actor *actor;
   struct projectile *p;
 
   SLIST_FOREACH(p, &projectiles, projectile){
@@ -62,6 +61,10 @@ void update_projectiles(void)
     p->origin_y += y;
 
     if (!is_passable((int)p->origin_x, (int)p->origin_y)){
+      if ((actor = actor_is_at_pos((struct position){ p->origin_x, p->origin_y }))){
+        actor->hp--;
+      }
+
       SLIST_REMOVE(&projectiles, p, projectile, projectile);
     }
   }

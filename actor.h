@@ -14,6 +14,7 @@
 #define ACTOR_H
 
 #include "main.h"
+#include "position.h"
 
 enum effect {
   EFFECT_NONE = 0,
@@ -25,15 +26,22 @@ struct actor {
   char face;
   char color;
   struct position pos;
+  int hp;
   unsigned effect_num;
   enum effect effects[12];
+  SLIST_ENTRY(actor) actor;
 };
 
+SLIST_HEAD(actors, actor);
+
+extern struct actors actors;
+
 void update_actors(void);
+void actor_new(char, char, struct position);
 void actor_apply_effect(struct actor *, enum effect);
 void actor_remove_effect(struct actor *, enum effect);
 
-extern struct actor actors[10];
+struct actor *actor_is_at_pos(struct position);
 
 #endif /* ACTOR_H */
 

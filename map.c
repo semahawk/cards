@@ -126,10 +126,11 @@ void target_scene_end(void);
 void target_set(void)
 {
   static struct actor *prev = NULL;
+  struct actor *actor;
 
-  for (unsigned i = 0; i < 10; i++){
-    if (actors[i].pos.x == target_cursor_pos.x + shown_chunk_x && actors[i].pos.y == target_cursor_pos.y + shown_chunk_y){
-      target = &actors[i];
+  SLIST_FOREACH(actor, &actors, actor){
+    if (actor->pos.x == target_cursor_pos.x + shown_chunk_x && actor->pos.y == target_cursor_pos.y + shown_chunk_y){
+      target = actor;
 
       if (prev)
         actor_remove_effect(prev, EFFECT_TARGETED);
@@ -254,21 +255,19 @@ void map_scene_render(void)
     }
   }
 
-  struct actor actor;
+  struct actor *actor;
   /* draw the actors */
-  for (unsigned i = 0; i < 10; i++){
-    actor = actors[i];
-
+  SLIST_FOREACH(actor, &actors, actor){
     /* see if the actor's position is contained within the displayed chunk */
-    if ((actor.pos.x >= shown_chunk_x && actor.pos.x < shown_chunk_x + WINDOW_COLS) &&
-        (actor.pos.y >= shown_chunk_y && actor.pos.y < shown_chunk_y + WINDOW_ROWS)){
-      unsigned on_the_screen_x = actor.pos.x - shown_chunk_x;
-      unsigned on_the_screen_y = actor.pos.y - shown_chunk_y;
+    if ((actor->pos.x >= shown_chunk_x && actor->pos.x < shown_chunk_x + WINDOW_COLS) &&
+        (actor->pos.y >= shown_chunk_y && actor->pos.y < shown_chunk_y + WINDOW_ROWS)){
+      unsigned on_the_screen_x = actor->pos.x - shown_chunk_x;
+      unsigned on_the_screen_y = actor->pos.y - shown_chunk_y;
 
-      switch (effect_counter % (actor.effect_num + 1)){
+      switch (effect_counter % (actor->effect_num + 1)){
         case EFFECT_NONE:
-          current_color = actor.color;
-          drawch(actor.face, on_the_screen_x, on_the_screen_y);
+          current_color = actor->color;
+          drawch(actor->face, on_the_screen_x, on_the_screen_y);
           break;
         case EFFECT_TARGETED:
           current_color = 'c';
@@ -332,6 +331,8 @@ void map_scene_render(void)
 
 void map_init(void)
 {
+  unsigned x, y, i, j;
+
   center_x = WINDOW_COLS / 2;
   center_y = WINDOW_ROWS / 2;
 
@@ -349,68 +350,54 @@ void map_init(void)
   }
 
   /* fill the entire map with grass */
-  for (unsigned x = 0; x < map_width; x++){
-    for (unsigned y = 0; y < map_height; y++){
+  for (x = 0; x < map_width; x++){
+    for (y = 0; y < map_height; y++){
       tile(x, y) = TILE_GRASS;
     }
   }
 
   /* make some of the tiles be trees */
-  for (unsigned i = 0; i < (map_width * map_height) / 73; i++){
-    unsigned x = rand() % map_width;
-    unsigned y = rand() % map_height;
+  for (i = 0; i < (map_width * map_height) / 73; i++){
+    x = rand() % map_width;
+    y = rand() % map_height;
 
     if (tile(x, y) == TILE_TREE) continue;
     else tile(x, y) = TILE_TREE;
   }
 
-  {
-    unsigned i = 0, j = 0;
+  /* put 10 randomly placed creatures on the map */
+  for (i = 0; i < 10; i++){
+    x = rand() % map_width;
+    y = rand() % map_height;
 
-    for (; i < 10; i++){
-      struct actor actor;
-      unsigned x = rand() % map_width;
-      unsigned y = rand() % map_height;
-
-      while (!is_passable(x, y)){
-        x = rand() % map_width;
-        y = rand() % map_height;
-      }
-
-      actor.face = 'g';
-      actor.color = 'y';
-      actor.pos.x = x;
-      actor.pos.y = y;
-
-      actor.effect_num = 0;
-      memset(actor.effects, EFFECT_NONE, sizeof(actor.effects));
-
-      actors[j++] = actor;
+    while (!is_passable(x, y)){
+      x = rand() % map_width;
+      y = rand() % map_height;
     }
+
+    actor_new('g', 'y', (struct position){ x, y });
   }
 
-  {
-    unsigned i = 0, j = 0;
+  j = 0;
 
-    for (; i < 10; i++){
-      struct item item;
-      unsigned x = rand() % map_width;
-      unsigned y = rand() % map_height;
+  for (i = 0; i < 10; i++){
+    struct item item;
+    x = rand() % map_width;
+    y = rand() % map_height;
 
-      while (!is_passable(x, y)){
-        x = rand() % map_width;
-        y = rand() % map_height;
-      }
-
-      unsigned choice = rand() % 3;
-      strcpy(item.name, (char *[]){"Sword", "Axe", "Wooden Stick"}[choice]);
-      item.face  = (char []){'!', 20, '/'}[choice];
-      item.color = (char []){'y', 'r', 'w'}[choice];
-      item.pos.x = x;
-      item.pos.y = y;
-
-      items[j++] = item;
+    while (!is_passable(x, y)){
+      x = rand() % map_width;
+      y = rand() % map_height;
     }
+
+    unsigned choice = rand() % 3;
+    strcpy(item.name, (char *[]){"Sword", "Axe", "Wooden Stick"}[choice]);
+    item.face  = (char []){'!', 20, '/'}[choice];
+    item.color = (char []){'y', 'r', 'w'}[choice];
+    item.pos.x = x;
+    item.pos.y = y;
+
+    items[j++] = item;
   }
 }
 
