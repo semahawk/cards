@@ -33,6 +33,12 @@
 #ifndef LIST_H
 #define LIST_H
 
+#define	QMD_TRACE_ELEM(elem)
+#define	QMD_TRACE_HEAD(head)
+#define	QMD_SAVELINK(name, link)
+#define	TRACEBUF
+#define	TRASHIT(x)
+
 /*
  * Singly-linked List declarations.
  */
@@ -115,6 +121,8 @@ struct {                \
   SLIST_FIRST(head1) = SLIST_FIRST(head2);      \
   SLIST_FIRST(head2) = swap_first;        \
 } while (0)
+
+
 
 #endif /* LIST_H */
 

@@ -11,10 +11,11 @@ OBJS = \
 	map.o \
 	inventory.o \
 	scene.o \
+	projectile.o \
 	item.o \
 	text.o
 
-LIBS = `sdl-config --libs`
+LIBS = `sdl-config --libs` -lSDL_gfx
 
 all: $(PROJ)
 

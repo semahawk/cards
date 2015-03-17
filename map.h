@@ -34,6 +34,10 @@ extern tile_t *map_tiles;
 extern unsigned map_width;
 extern unsigned map_height;
 
+extern scene_t map_scene;
+
+extern struct actor *target;
+
 void move_hero_up(void);
 void move_hero_down(void);
 void move_hero_left(void);
@@ -43,8 +47,6 @@ void map_init(void);
 void map_fini(void);
 void map_scene_preswitch(void);
 void map_scene_render(void);
-
-extern scene_t map_scene;
 
 /* use this macro to access a tile in position (x, y) from the map */
 #define tile(x,y) (map_tiles)[(x) * map_height + (y)]

@@ -29,6 +29,7 @@
 #include "scene.h"
 #include "stack.h"
 #include "list.h"
+#include "projectile.h"
 
 struct hero the_hero;
 
@@ -114,6 +115,7 @@ void stop_running(void)
 
 void next_turn(void)
 {
+  update_projectiles();
   update_actors();
 
   turn++;
@@ -132,7 +134,7 @@ int main(int argc, char *argv[])
   srand(time(NULL));
 
   text_init1("./font.bmp");
-  screen = SDL_SetVideoMode(WINDOW_COLS * font_width, WINDOW_ROWS * font_height, 32, SDL_HWSURFACE);
+  screen = SDL_SetVideoMode(WINDOW_COLS * font_width, WINDOW_ROWS * font_height, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
   text_init2();
 
   event_init();

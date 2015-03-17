@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <SDL/SDL_gfxPrimitives.h>
+
 #include "actor.h"
 #include "main.h"
 #include "map.h"
@@ -23,6 +25,8 @@
 #include "inventory.h"
 #include "text.h"
 #include "duel.h"
+#include "list.h"
+#include "projectile.h"
 
 /* a one dimensional array */
 tile_t *map_tiles;
@@ -42,6 +46,9 @@ unsigned map_width = 256;
 unsigned map_height = 256;
 
 scene_t map_scene = (scene_t){ map_scene_preswitch, map_scene_render };
+
+struct actor *target = NULL;
+static struct position target_cursor_pos;
 
 void move_hero_up(void)
 {
@@ -89,9 +96,6 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
       break;
   }
 }
-
-static struct actor *target = NULL;
-static struct position target_cursor_pos;
 
 void move_target_left(void)
 {
@@ -200,6 +204,7 @@ void map_scene_preswitch(void)
   event_handlers[SDLK_d] = (event_handler_t){ false, duel_begin };
   event_handlers[SDLK_t] = (event_handler_t){ false, target_scene_begin };
   event_handlers[SDLK_p] = (event_handler_t){ false, pick_item };
+  event_handlers[SDLK_s] = (event_handler_t){ true, shoot_projectile };
 }
 
 void map_scene_render(void)
@@ -308,6 +313,21 @@ void map_scene_render(void)
   }
 
   draws("`b@", x, y);
+
+  /* draw all the projectiles on the map */
+  {
+    struct projectile *p;
+
+    SLIST_FOREACH(p, &projectiles, projectile){
+      unsigned on_the_screen_x = (p->origin_x - shown_chunk_x) * font_width;
+      unsigned on_the_screen_y = (p->origin_y - shown_chunk_y) * font_height;
+
+      unsigned x = cos(p->angle) * font_width;
+      unsigned y = sin(p->angle) * font_height;
+
+      lineRGBA(screen, on_the_screen_x, on_the_screen_y, x + on_the_screen_x, y + on_the_screen_y, 0xff, 0xff, 0xff, 0xff);
+    }
+  }
 }
 
 void map_init(void)
