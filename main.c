@@ -113,6 +113,11 @@ void stop_running(void)
   running = false;
 }
 
+void skip_turn(void)
+{
+  action_issued = true;
+}
+
 void next_turn(void)
 {
   update_projectiles();

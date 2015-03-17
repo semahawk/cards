@@ -193,18 +193,18 @@ void map_scene_preswitch(void)
 {
   event_clear_all();
 
-  event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, stop_running };
   event_handlers[SDLK_h] = (event_handler_t){ true, move_hero_left };
   event_handlers[SDLK_j] = (event_handler_t){ true, move_hero_down };
   event_handlers[SDLK_k] = (event_handler_t){ true, move_hero_up };
   event_handlers[SDLK_l] = (event_handler_t){ true, move_hero_right };
   event_handlers[SDLK_i] = (event_handler_t){ false, inventory_open };
   event_handlers[SDLK_r] = (event_handler_t){ false, dump_scenes };
-  event_handlers[SDLK_PERIOD] = (event_handler_t){ true, next_turn };
   event_handlers[SDLK_d] = (event_handler_t){ false, duel_begin };
   event_handlers[SDLK_t] = (event_handler_t){ false, target_scene_begin };
   event_handlers[SDLK_p] = (event_handler_t){ false, pick_item };
   event_handlers[SDLK_s] = (event_handler_t){ true, shoot_projectile };
+  event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, stop_running };
+  event_handlers[SDLK_PERIOD] = (event_handler_t){ true, skip_turn };
 }
 
 void map_scene_render(void)
