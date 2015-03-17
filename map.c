@@ -138,6 +138,8 @@ void target_set(void)
       actor_apply_effect(target, EFFECT_TARGETED);
 
       prev = target;
+
+      target_scene_end();
     }
   }
 }
