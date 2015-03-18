@@ -206,7 +206,7 @@ void map_scene_preswitch(void)
   event_handlers[SDLK_t] = (event_handler_t){ false, target_scene_begin };
   event_handlers[SDLK_p] = (event_handler_t){ false, pick_item };
   event_handlers[SDLK_s] = (event_handler_t){ true, shoot_projectile };
-  event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, stop_running };
+  event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, scene_previous };
   event_handlers[SDLK_PERIOD] = (event_handler_t){ true, skip_turn };
 }
 

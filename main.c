@@ -43,6 +43,18 @@ bool running = true;
 bool action_issued  = false;
 unsigned turn = 0;
 
+void main_menu_resume(void);
+
+static struct main_menu_option {
+  const char *text;
+  void (*func)(void);
+} main_menu_options[] = {
+  { "Resume", main_menu_resume },
+  { "Quit", stop_running },
+};
+
+static unsigned main_menu_current_option = 0;
+
 void cap_frame_rate(void)
 {
   /* {{{ */
@@ -126,6 +138,56 @@ void next_turn(void)
   turn++;
 }
 
+void main_menu_resume(void)
+{
+  scene_setnew(map_scene);
+}
+
+void main_menu_option_next(void)
+{
+  if (main_menu_current_option < ARRAY_SIZE(main_menu_options) - 1)
+    main_menu_current_option++;
+}
+
+void main_menu_option_prev(void)
+{
+  if (main_menu_current_option > 0)
+    main_menu_current_option--;
+}
+
+void main_menu_select_option(void)
+{
+  main_menu_options[main_menu_current_option].func();
+}
+
+void main_menu_scene_preswitch(void)
+{
+  event_clear_all();
+
+  event_handlers[SDLK_j] = (event_handler_t){ false, main_menu_option_next };
+  event_handlers[SDLK_k] = (event_handler_t){ false, main_menu_option_prev };
+  event_handlers[SDLK_RETURN] = (event_handler_t){ false, main_menu_select_option };
+  event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, stop_running };
+}
+
+void main_menu_scene_render(void)
+{
+  unsigned y = 6, i;
+
+  SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+
+  for (i = 0; i < ARRAY_SIZE(main_menu_options); i++){
+    if (i == main_menu_current_option)
+      current_color = 'y';
+    else
+      current_color = 'b';
+
+    draws(main_menu_options[i].text, WINDOW_COLS / 2 - strlen(main_menu_options[i].text) / 2, y++);
+  }
+}
+
+scene_t main_menu_scene = (scene_t){ main_menu_scene_preswitch, main_menu_scene_render };
+
 int main(int argc, char *argv[])
 {
   SLIST_INIT(&the_hero.inv);
@@ -146,6 +208,7 @@ int main(int argc, char *argv[])
   scene_init();
   map_init();
 
+  scene_setnew(main_menu_scene);
   scene_setnew(map_scene);
 
   (STACK_TOP(scenes)).render();

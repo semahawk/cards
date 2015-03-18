@@ -38,7 +38,7 @@ void scene_previous(void)
     (void)STACK_POP(scenes);
   }
 
-  (STACK_TOP(scenes)).preswitch();
+  STACK_TOP(scenes).preswitch();
 }
 
 void dump_scenes(void)

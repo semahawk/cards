@@ -35,6 +35,8 @@ void stop_running(void);
 void next_turn(void);
 void skip_turn(void);
 
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(*a))
+
 #endif /* MAIN_H */
 
 /*
