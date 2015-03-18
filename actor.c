@@ -43,7 +43,11 @@ void update_actors(void)
     /* let's check if he's alive at all */
     if (actor->hp <= 0){
       SLIST_REMOVE(&actors, actor, actor, actor);
+      free(actor);
+
       printf("actor %p has died.\n", (void *)actor);
+
+      target = NULL;
     }
 
     /* 15% chance to make a move in random direction */

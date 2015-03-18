@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -save-temps -g -W -Wall -std=c99 `sdl-config --cflags`
+CFLAGS = -g -W -Wall -std=c99 `sdl-config --cflags`
 
 PROJ = cards
 OBJS = \

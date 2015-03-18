@@ -66,6 +66,7 @@ void update_projectiles(void)
       }
 
       SLIST_REMOVE(&projectiles, p, projectile, projectile);
+      free(p);
     }
   }
 }
