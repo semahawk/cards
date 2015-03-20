@@ -28,8 +28,10 @@
 #include "list.h"
 #include "projectile.h"
 
-/* a one dimensional array */
-tile_t *map_tiles;
+struct chunk *chunks[3][3];
+
+unsigned map_origin_x;
+unsigned map_origin_y;
 
 static unsigned center_x;
 static unsigned center_y;
@@ -42,13 +44,40 @@ static unsigned effect_counter = 0;
 unsigned hero_pos_x = 0;
 unsigned hero_pos_y = 0;
 
-unsigned map_width = 256;
-unsigned map_height = 256;
+unsigned map_width = 3 * CHUNK_WIDTH;
+unsigned map_height = 3 * CHUNK_HEIGHT;
 
 scene_t map_scene = (scene_t){ map_scene_preswitch, map_scene_render };
 
 struct actor *target = NULL;
 static struct position target_cursor_pos;
+
+struct chunk *load_chunk(unsigned x, unsigned y)
+{
+  struct chunk *n = malloc(sizeof(struct chunk));
+
+  /* silence warnings */
+  (void)x;
+  (void)y;
+
+  for (unsigned i = 0; i < CHUNK_WIDTH; i++)
+    for (unsigned j = 0; j < CHUNK_HEIGHT; j++)
+      n->tiles[i][j] = rand() % 73 ? TILE_GRASS : TILE_TREE;
+
+  /* make rivers at the chunk's borders (debug purposes) */
+  /* top and left borders are blue, right and bottom are red */
+  for (unsigned i = 0; i < CHUNK_WIDTH; i++){
+    n->tiles[i][0] = TILE_RIVER;
+    n->tiles[i][CHUNK_HEIGHT - 1] = TILE_MAGMA;
+  }
+
+  for (unsigned j = 0; j < CHUNK_WIDTH; j++){
+    n->tiles[0][j] = TILE_RIVER;
+    n->tiles[CHUNK_WIDTH - 1][j] = TILE_MAGMA;
+  }
+
+  return n;
+}
 
 void move_hero_up(void)
 {
@@ -90,6 +119,12 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
       break;
     case TILE_TREE:
       draws("`go", x, y);
+      break;
+    case TILE_RIVER:
+      draws("`b,", x, y);
+      break;
+    case TILE_MAGMA:
+      draws("`r,", x, y);
       break;
     default:
       draws("`r?", x, y);
@@ -266,6 +301,7 @@ void map_scene_render(void)
       unsigned on_the_screen_x = actor->pos.x - shown_chunk_x;
       unsigned on_the_screen_y = actor->pos.y - shown_chunk_y;
 
+      /* FIXME */
       switch (effect_counter % (actor->effect_num + 1)){
         case EFFECT_NONE:
           current_color = actor->color;
@@ -335,6 +371,7 @@ void map_scene_render(void)
 
 void map_init(void)
 {
+  /*unsigned chunk_origin_x, chunk_origin_y;*/
   unsigned x, y, i, j;
 
   center_x = WINDOW_COLS / 2;
@@ -343,31 +380,15 @@ void map_init(void)
   hero_pos_x = map_width / 2;
   hero_pos_y = map_height / 2;
 
-  map_tiles = malloc(sizeof(tile_t) * map_width * map_height);
+  map_origin_x = (hero_pos_x - hero_pos_x % CHUNK_WIDTH) - CHUNK_WIDTH;
+  map_origin_y = (hero_pos_y - hero_pos_y % CHUNK_HEIGHT) - CHUNK_HEIGHT;
 
-  printf("allocating a %ux%u (%d bytes) map\n", map_width, map_height,
-      sizeof(tile_t) * map_width * map_height);
+  printf("map_origin_x %u, map_origin_y %u\n", map_origin_x, map_origin_y);
 
-  if (!map_tiles){
-    fprintf(stderr, "couldn't allocate memory for the map\n");
-    exit(1);
-  }
-
-  /* fill the entire map with grass */
-  for (x = 0; x < map_width; x++){
-    for (y = 0; y < map_height; y++){
-      tile(x, y) = TILE_GRASS;
-    }
-  }
-
-  /* make some of the tiles be trees */
-  for (i = 0; i < (map_width * map_height) / 73; i++){
-    x = rand() % map_width;
-    y = rand() % map_height;
-
-    if (tile(x, y) == TILE_TREE) continue;
-    else tile(x, y) = TILE_TREE;
-  }
+  for (i = 0; i < 3; i++)
+    for (j = 0; j < 3; j++)
+      chunks[i][j] = load_chunk(map_origin_x + i * CHUNK_WIDTH,
+                                map_origin_y + j * CHUNK_HEIGHT);
 
   /* put 10 randomly placed creatures on the map */
   for (i = 0; i < 10; i++){
@@ -407,7 +428,11 @@ void map_init(void)
 
 void map_fini(void)
 {
-  free(map_tiles);
+  unsigned i, j;
+
+  for (i = 0; i < 3; i++)
+    for (j = 0; j < 3; j++)
+      free(chunks[i][j]);
 }
 
 /*
