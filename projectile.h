@@ -33,6 +33,16 @@ extern struct projectiles projectiles;
 void shoot_projectile(void);
 void update_projectiles(void);
 
+static inline double deg2rad(double deg)
+{
+  return deg * M_PI / 180;
+}
+
+static inline double rad2deg(double rad)
+{
+  return rad * 180 / M_PI;
+}
+
 static inline double calc_angle(struct position p1, struct position p2)
 {
   return atan2((int)(p2.y - p1.y), (int)(p2.x - p1.x));

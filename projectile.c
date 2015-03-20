@@ -22,26 +22,37 @@
 /* a list of all the projectiles in the world */
 struct projectiles projectiles = SLIST_HEAD_INITIALIZER();
 
-void shoot_projectile(void)
+void projectile_new(double origin_x, double origin_y, double angle, double speed)
 {
   struct projectile *n;
 
-  if (target == NULL){
-    printf("no target set\n");
-    fflush(stdout);
-
-    return;
-  }
-
   n = malloc(sizeof(struct projectile));
 
-  n->origin_x = hero_pos_x + 0.5;
-  n->origin_y = hero_pos_y + 0.5;
-  n->angle = calc_angle((struct position){ hero_pos_x, hero_pos_y }, target->pos);
-  /* one character per turn */
-  n->speed = 1;
+  n->origin_x = origin_x;
+  n->origin_y = origin_y;
+  n->angle = angle;
+  n->speed = speed;
 
   SLIST_INSERT_HEAD(&projectiles, n, projectile);
+}
+
+void shoot_projectile(void)
+{
+  static double angle = 0;
+
+  if (target == NULL){
+    /*printf("no target set\n");*/
+    /*fflush(stdout);*/
+
+    /*return;*/
+  }
+
+  /*angle = calc_angle((struct position){ hero_pos_x, hero_pos_y }, target->pos);*/
+  /*projectile_new(hero_pos_x + 0.5, hero_pos_y + 0.5, angle, 1);*/
+
+  for (unsigned i = 0; i < 13; i++){
+    projectile_new(hero_pos_x + 0.5, hero_pos_y + 0.5, deg2rad(360 / 13 * i + (angle += 13)), 1);
+  }
 
   action_issued = true;
 }

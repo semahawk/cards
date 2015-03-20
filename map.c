@@ -326,7 +326,9 @@ void map_scene_render(void)
       unsigned x = cos(p->angle) * font_width;
       unsigned y = sin(p->angle) * font_height;
 
-      lineRGBA(screen, on_the_screen_x, on_the_screen_y, x + on_the_screen_x, y + on_the_screen_y, 0xff, 0xff, 0xff, 0xff);
+      /*lineRGBA(screen, on_the_screen_x, on_the_screen_y, x + on_the_screen_x, y + on_the_screen_y, 0x00, 0xff, 0x00, 0xff);*/
+      current_color = 'w';
+      drawch(249, (on_the_screen_x + x) / 8, (on_the_screen_y + y) / 8);
     }
   }
 }
