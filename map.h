@@ -61,11 +61,15 @@ void map_scene_render(void);
 
 struct chunk *load_chunk(unsigned x, unsigned y);
 
-/* use this macro to access a tile in position (x, y) from the map */
+/* access a tile in position (x, y) */
+/* it has to be within the range of the loaded chunks */
 static inline tile_t tile(unsigned x, unsigned y)
 {
-  unsigned idx_x = ((x - x % CHUNK_WIDTH)  - map_origin_x) / CHUNK_WIDTH;
-  unsigned idx_y = ((y - y % CHUNK_HEIGHT) - map_origin_y) / CHUNK_HEIGHT;
+  unsigned idx_x = x < CHUNK_WIDTH  ? 0 : ((x - x % CHUNK_WIDTH)  - map_origin_x) / CHUNK_WIDTH;
+  unsigned idx_y = y < CHUNK_HEIGHT ? 0 : ((y - y % CHUNK_HEIGHT) - map_origin_y) / CHUNK_HEIGHT;
+
+  /*printf("(%u,%u) -> [%u][%u]\n", x, y, idx_x, idx_y);*/
+  /*fflush(stdout);*/
 
   struct chunk *chunk = chunks[idx_x][idx_y];
 
