@@ -30,35 +30,30 @@
 
 struct chunk *chunks[3][3];
 
-unsigned map_origin_x;
-unsigned map_origin_y;
+int map_origin_x;
+int map_origin_y;
 
-static unsigned center_x;
-static unsigned center_y;
+static int center_x;
+static int center_y;
 
-static unsigned shown_chunk_x;
-static unsigned shown_chunk_y;
+static int shown_chunk_x;
+static int shown_chunk_y;
 
 static unsigned effect_counter = 0;
 
-unsigned hero_pos_x = 0;
-unsigned hero_pos_y = 0;
-
-unsigned map_width = 9 * CHUNK_WIDTH;
-unsigned map_height = 9 * CHUNK_HEIGHT;
+int hero_pos_x = 0;
+int hero_pos_y = 0;
 
 scene_t map_scene = (scene_t){ map_scene_preswitch, map_scene_render };
 
 struct actor *target = NULL;
 static struct position target_cursor_pos;
 
-struct chunk *load_chunk(unsigned x, unsigned y)
+struct chunk *load_chunk(int x, int y)
 {
   struct chunk *n = malloc(sizeof(struct chunk));
 
-  /* silence warnings */
-  (void)x;
-  (void)y;
+  printf("loading chunk (%d,%d)\n", x, y);
 
   for (unsigned i = 0; i < CHUNK_WIDTH; i++)
     for (unsigned j = 0; j < CHUNK_HEIGHT; j++)
@@ -82,11 +77,11 @@ struct chunk *load_chunk(unsigned x, unsigned y)
 void move_hero_up(void)
 {
   /* user stepped over to the northern chunk */
-  if (hero_pos_y - 1 < map_origin_y + CHUNK_HEIGHT && map_origin_y > CHUNK_HEIGHT){
+  if (hero_pos_y - 1 < map_origin_y){
     map_origin_y -= CHUNK_HEIGHT;
 
-    printf("crossed the northern chunk boundary:"
-      "new origins = (%u, %u)\n", map_origin_x, map_origin_y);
+    printf("crossed the northern chunk boundary\n"
+      "new origins = (%d, %d)\n", map_origin_x, map_origin_y);
 
     printf("removing old chunks...\n");
     fflush(stdout);
@@ -112,9 +107,9 @@ void move_hero_up(void)
     fflush(stdout);
 
     /* fetch three new chunks at the top row */
-    chunks[0][0] = load_chunk(map_origin_x, map_origin_y);
-    chunks[1][0] = load_chunk(map_origin_x, map_origin_y + CHUNK_HEIGHT);
-    chunks[2][0] = load_chunk(map_origin_x, map_origin_y + 2 * CHUNK_HEIGHT);
+    chunks[0][0] = load_chunk(map_origin_x - CHUNK_WIDTH, map_origin_y - CHUNK_HEIGHT);
+    chunks[1][0] = load_chunk(map_origin_x, map_origin_y - CHUNK_HEIGHT);
+    chunks[2][0] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y - CHUNK_HEIGHT);
   }
 
   if (is_passable(hero_pos_x, hero_pos_y - 1))
@@ -125,15 +120,12 @@ void move_hero_up(void)
 
 void move_hero_down(void)
 {
-  if (is_passable(hero_pos_x, hero_pos_y + 1))
-    hero_pos_y++;
-
   /* user stepped over to the southern chunk */
-  if (hero_pos_y > map_origin_y + 2 * CHUNK_HEIGHT && map_origin_y < map_height - 3 * CHUNK_HEIGHT){
+  if (hero_pos_y + 1 >= map_origin_y + CHUNK_HEIGHT){
     map_origin_y += CHUNK_HEIGHT;
 
-    printf("crossed the southern chunk boundary:"
-      "new origins = (%u, %u)\n", map_origin_x, map_origin_y);
+    printf("crossed the southern chunk boundary\n"
+      "new origins = (%d, %d)\n", map_origin_x, map_origin_y);
 
     printf("removing old chunks...\n");
     fflush(stdout);
@@ -159,25 +151,25 @@ void move_hero_down(void)
     fflush(stdout);
 
     /* fetch three new chunks at the bottom row */
-    chunks[0][2] = load_chunk(map_origin_x, map_origin_y);
+    chunks[0][2] = load_chunk(map_origin_x - CHUNK_WIDTH, map_origin_y + CHUNK_HEIGHT);
     chunks[1][2] = load_chunk(map_origin_x, map_origin_y + CHUNK_HEIGHT);
-    chunks[2][2] = load_chunk(map_origin_x, map_origin_y + 2 * CHUNK_HEIGHT);
+    chunks[2][2] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y + CHUNK_HEIGHT);
   }
+
+  if (is_passable(hero_pos_x, hero_pos_y + 1))
+    hero_pos_y++;
 
   action_issued = true;
 }
 
 void move_hero_left(void)
 {
-  if (is_passable(hero_pos_x - 1, hero_pos_y))
-    hero_pos_x--;
-
   /* user stepped over to the western chunk */
-  if (hero_pos_x < map_origin_x + CHUNK_WIDTH && map_origin_x > CHUNK_WIDTH){
+  if (hero_pos_x - 1 < map_origin_x){
     map_origin_x -= CHUNK_WIDTH;
 
-    printf("crossed the western chunk boundary:"
-      "new origins = (%u, %u)\n", map_origin_x, map_origin_y);
+    printf("crossed the western chunk boundary\n"
+      "new origins = (%d, %d)\n", map_origin_x, map_origin_y);
 
     printf("removing old chunks...\n");
     fflush(stdout);
@@ -203,10 +195,13 @@ void move_hero_left(void)
     fflush(stdout);
 
     /* fetch three new chunks at the top row */
-    chunks[0][0] = load_chunk(map_origin_x, map_origin_y);
-    chunks[0][1] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y);
-    chunks[0][2] = load_chunk(map_origin_x + 2 * CHUNK_WIDTH, map_origin_y);
+    chunks[0][0] = load_chunk(map_origin_x - CHUNK_WIDTH, map_origin_y - CHUNK_HEIGHT);
+    chunks[0][1] = load_chunk(map_origin_x - CHUNK_WIDTH, map_origin_y);
+    chunks[0][2] = load_chunk(map_origin_x - CHUNK_WIDTH, map_origin_y + CHUNK_HEIGHT);
   }
+
+  if (is_passable(hero_pos_x - 1, hero_pos_y))
+    hero_pos_x--;
 
   action_issued = true;
 }
@@ -214,11 +209,11 @@ void move_hero_left(void)
 void move_hero_right(void)
 {
   /* user stepped over to the eastern chunk */
-  if (hero_pos_x + 1 > map_origin_x + 2 * CHUNK_WIDTH && map_origin_x < map_width - 3 * CHUNK_WIDTH){
+  if (hero_pos_x + 1 >= map_origin_x + CHUNK_WIDTH){
     map_origin_x += CHUNK_WIDTH;
 
-    printf("crossed the eastern chunk boundary:"
-      "new origins = (%u, %u)\n", map_origin_x, map_origin_y);
+    printf("crossed the eastern chunk boundary\n"
+      "new origins = (%d, %d)\n", map_origin_x, map_origin_y);
 
     printf("removing old chunks...\n");
     fflush(stdout);
@@ -244,9 +239,9 @@ void move_hero_right(void)
     fflush(stdout);
 
     /* fetch three new chunks at the right column */
-    chunks[2][0] = load_chunk(map_origin_x, map_origin_y);
+    chunks[2][0] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y - CHUNK_HEIGHT);
     chunks[2][1] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y);
-    chunks[2][2] = load_chunk(map_origin_x + 2 * CHUNK_WIDTH, map_origin_y);
+    chunks[2][2] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y + CHUNK_HEIGHT);
   }
 
   if (is_passable(hero_pos_x + 1, hero_pos_y))
@@ -284,7 +279,7 @@ void move_target_left(void)
 
 void move_target_down(void)
 {
-  if (target_cursor_pos.y < WINDOW_ROWS - 1)
+  if (target_cursor_pos.y < (signed)WINDOW_ROWS - 1)
     target_cursor_pos.y++;
 }
 
@@ -296,7 +291,7 @@ void move_target_up(void)
 
 void move_target_right(void)
 {
-  if (target_cursor_pos.x < WINDOW_COLS - 1)
+  if (target_cursor_pos.x < (signed)WINDOW_COLS - 1)
     target_cursor_pos.x++;
 }
 
@@ -334,7 +329,7 @@ void target_scene_preswitch(void)
   event_handlers[SDLK_t] = (event_handler_t){ false, target_set };
   event_handlers[SDLK_ESCAPE] = (event_handler_t){ false, target_scene_end };
 
-  target_cursor_pos = (struct position){ WINDOW_COLS / 2, WINDOW_ROWS / 2 };
+  target_cursor_pos = (struct position){ (signed)WINDOW_COLS / 2, (signed)WINDOW_ROWS / 2 };
 }
 
 void target_scene_render(void)
@@ -401,21 +396,10 @@ void map_scene_render(void)
   shown_chunk_x = hero_pos_x - center_x;
   shown_chunk_y = hero_pos_y - center_y;
 
-  /* calculate the top-left chunk's corner coordinates */
-  if (hero_pos_x < center_x)
-    shown_chunk_x = 0;
-  else if (hero_pos_x > map_width - center_x)
-    shown_chunk_x = map_width - WINDOW_COLS;
-
-  if (hero_pos_y < center_y)
-    shown_chunk_y = 0;
-  else if (hero_pos_y > map_height - center_y)
-    shown_chunk_y = map_height - WINDOW_ROWS;
-
   /* draw the chunk of the map onto the screen */
   /* starting from 1 to start below the infobar */
-  for (unsigned y = 0; y < WINDOW_ROWS && y < map_height; y++){
-    for (unsigned x = 0; x < WINDOW_COLS && x < map_width; x++){
+  for (int y = 0; y < (signed)WINDOW_ROWS; y++){
+    for (int x = 0; x < (signed)WINDOW_COLS; x++){
       map_draw_tile(tile(shown_chunk_x + x, shown_chunk_y + y), x, y);
     }
   }
@@ -426,8 +410,8 @@ void map_scene_render(void)
     item = items[i];
 
     /* see if the actor's position is contained within the displayed chunk */
-    if ((item.pos.x >= shown_chunk_x && item.pos.x < shown_chunk_x + WINDOW_COLS) &&
-        (item.pos.y >= shown_chunk_y && item.pos.y < shown_chunk_y + WINDOW_ROWS)){
+    if ((item.pos.x >= shown_chunk_x && item.pos.x < shown_chunk_x + (signed)WINDOW_COLS) &&
+        (item.pos.y >= shown_chunk_y && item.pos.y < shown_chunk_y + (signed)WINDOW_ROWS)){
       unsigned on_the_screen_x = item.pos.x - shown_chunk_x;
       unsigned on_the_screen_y = item.pos.y - shown_chunk_y;
 
@@ -440,8 +424,8 @@ void map_scene_render(void)
   /* draw the actors */
   SLIST_FOREACH(actor, &actors, actor){
     /* see if the actor's position is contained within the displayed chunk */
-    if ((actor->pos.x >= shown_chunk_x && actor->pos.x < shown_chunk_x + WINDOW_COLS) &&
-        (actor->pos.y >= shown_chunk_y && actor->pos.y < shown_chunk_y + WINDOW_ROWS)){
+    if ((actor->pos.x >= shown_chunk_x && actor->pos.x < shown_chunk_x + (signed)WINDOW_COLS) &&
+        (actor->pos.y >= shown_chunk_y && actor->pos.y < shown_chunk_y + (signed)WINDOW_ROWS)){
       unsigned on_the_screen_x = actor->pos.x - shown_chunk_x;
       unsigned on_the_screen_y = actor->pos.y - shown_chunk_y;
 
@@ -463,27 +447,8 @@ void map_scene_render(void)
     }
   }
 
-  /* keep the hero in the center of the screen, or draw him to the borders when
-   * close */
-  /* getting close to the left border */
-  if (hero_pos_x < center_x)
-    x = hero_pos_x;
-  /* getting close to the right border */
-  else if (hero_pos_x > map_width - center_x)
-    x = WINDOW_COLS - (map_width - hero_pos_x);
-  /* far from either */
-  else
-    x = center_x;
-
-  /* getting close to the top border */
-  if (hero_pos_y < center_y)
-    y = hero_pos_y;
-  /* getting close to the bottom border */
-  else if (hero_pos_y > map_height - center_y)
-    y = WINDOW_ROWS - (map_height - hero_pos_y);
-  /* far from either */
-  else
-    y = center_y;
+  x = center_x;
+  y = center_y;
 
   for (int i = 0; i < 10; i++){
     item = items[i];
@@ -515,29 +480,23 @@ void map_scene_render(void)
 
 void map_init(void)
 {
-  /*unsigned chunk_origin_x, chunk_origin_y;*/
   unsigned x, y, i, j;
 
   center_x = WINDOW_COLS / 2;
   center_y = WINDOW_ROWS / 2;
 
-  hero_pos_x = map_width / 2;
-  hero_pos_y = map_height / 2;
+  hero_pos_x = 0;
+  hero_pos_y = 0;
 
-  map_origin_x = (hero_pos_x - hero_pos_x % CHUNK_WIDTH) - CHUNK_WIDTH;
-  map_origin_y = (hero_pos_y - hero_pos_y % CHUNK_HEIGHT) - CHUNK_HEIGHT;
-
-  printf("map_width %u, map_height %u\n", map_width, map_height);
-  printf("hero_pos_x %u, hero_pos_y %u\n", hero_pos_x, hero_pos_y);
-  printf("map_origin_x %u, map_origin_y %u\n", map_origin_x, map_origin_y);
-  fflush(stdout);
+  map_origin_x = 0;
+  map_origin_y = 0;
 
   for (i = 0; i < 3; i++)
     for (j = 0; j < 3; j++)
-      chunks[i][j] = load_chunk(map_origin_x + i * CHUNK_WIDTH,
-                                map_origin_y + j * CHUNK_HEIGHT);
+      chunks[i][j] = load_chunk(map_origin_x + (i - 1) * CHUNK_WIDTH,
+                                map_origin_y + (j - 1) * CHUNK_HEIGHT);
 
-  /* put 10 randomly placed creatures on the map */
+  /* put 10 randomly placed creatures on the map.. not! */
   while (0) for (i = 0; i < 10; i++){
     x = (rand() % (3 * CHUNK_WIDTH)) + map_origin_x;
     y = (rand() % (3 * CHUNK_HEIGHT)) + map_origin_y;
@@ -554,12 +513,12 @@ void map_init(void)
 
   for (i = 0; i < 10; i++){
     struct item item;
-    x = (rand() % (3 * CHUNK_WIDTH)) + map_origin_x;
-    y = (rand() % (3 * CHUNK_HEIGHT)) + map_origin_y;
+    x = (rand() % (3 * CHUNK_WIDTH)) - CHUNK_WIDTH;
+    y = (rand() % (3 * CHUNK_HEIGHT)) - CHUNK_HEIGHT;
 
     while (!is_passable(x, y)){
-      x = (rand() % (3 * CHUNK_WIDTH)) + map_origin_x;
-      y = (rand() % (3 * CHUNK_HEIGHT)) + map_origin_y;
+      x = (rand() % (3 * CHUNK_WIDTH)) - CHUNK_WIDTH;
+      y = (rand() % (3 * CHUNK_HEIGHT)) - CHUNK_HEIGHT;
     }
 
     unsigned choice = rand() % 3;

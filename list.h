@@ -122,8 +122,6 @@ struct {                \
   SLIST_FIRST(head2) = swap_first;        \
 } while (0)
 
-
-
 #endif /* LIST_H */
 
 /*

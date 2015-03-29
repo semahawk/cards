@@ -14,8 +14,8 @@
 #define POSITION_H
 
 struct position {
-  unsigned x;
-  unsigned y;
+  int x;
+  int y;
 };
 
 #endif /* POSITION_H */

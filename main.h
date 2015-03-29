@@ -20,7 +20,7 @@
 
 #define FPS_CAP       (25)
 
-#define GAME_SPEED    (52)
+#define GAME_SPEED    (23)
 #define MAX_FRAMESKIP (10)
 
 extern struct hero the_hero;
@@ -34,6 +34,8 @@ extern unsigned turn;
 void stop_running(void);
 void next_turn(void);
 void skip_turn(void);
+
+#define mod(a,b) (((a < 0) ? ((a % b) + b) : a) % b)
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(*a))
 
