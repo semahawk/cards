@@ -52,12 +52,21 @@ static struct position target_cursor_pos;
 struct chunk *load_chunk(int x, int y)
 {
   struct chunk *n = malloc(sizeof(struct chunk));
+  unsigned i, j;
 
   printf("loading chunk (%d,%d)\n", x, y);
 
-  for (unsigned i = 0; i < CHUNK_WIDTH; i++)
-    for (unsigned j = 0; j < CHUNK_HEIGHT; j++)
+  for (i = 0; i < CHUNK_WIDTH; i++)
+    for (j = 0; j < CHUNK_HEIGHT; j++)
       n->tiles[i][j] = rand() % 73 ? TILE_GRASS : TILE_TREE;
+
+  /* put 3 randomly placed creatures on the chunk */
+  /*for (i = 0; i < 3; i++){*/
+    /*x = (rand() % CHUNK_WIDTH)  + x;*/
+    /*y = (rand() % CHUNK_HEIGHT) + y;*/
+
+    /*actor_new('g', 'y', (struct position){ x, y });*/
+  /*}*/
 
   /* make rivers at the chunk's borders (debug purposes) */
   /* top and left borders are blue, right and bottom are red */
@@ -302,7 +311,7 @@ void target_set(void)
   static struct actor *prev = NULL;
   struct actor *actor;
 
-  SLIST_FOREACH(actor, &actors, actor){
+  SLIST_FOREACH(actor, &rendered_actors, actor){
     if (actor->pos.x == target_cursor_pos.x + shown_chunk_x && actor->pos.y == target_cursor_pos.y + shown_chunk_y){
       target = actor;
 
@@ -422,7 +431,7 @@ void map_scene_render(void)
 
   struct actor *actor;
   /* draw the actors */
-  SLIST_FOREACH(actor, &actors, actor){
+  SLIST_FOREACH(actor, &rendered_actors, actor){
     /* see if the actor's position is contained within the displayed chunk */
     if ((actor->pos.x >= shown_chunk_x && actor->pos.x < shown_chunk_x + (signed)WINDOW_COLS) &&
         (actor->pos.y >= shown_chunk_y && actor->pos.y < shown_chunk_y + (signed)WINDOW_ROWS)){
@@ -496,18 +505,7 @@ void map_init(void)
       chunks[i][j] = load_chunk(map_origin_x + (i - 1) * CHUNK_WIDTH,
                                 map_origin_y + (j - 1) * CHUNK_HEIGHT);
 
-  /* put 10 randomly placed creatures on the map.. not! */
-  while (0) for (i = 0; i < 10; i++){
-    x = (rand() % (3 * CHUNK_WIDTH)) + map_origin_x;
-    y = (rand() % (3 * CHUNK_HEIGHT)) + map_origin_y;
-
-    while (!is_passable(x, y)){
-      x = (rand() % (3 * CHUNK_WIDTH)) + map_origin_x;
-      y = (rand() % (3 * CHUNK_HEIGHT)) + map_origin_y;
-    }
-
-    actor_new('g', 'y', (struct position){ x, y });
-  }
+  actor_new('g', 'y', (struct position){ 3, 3 });
 
   j = 0;
 

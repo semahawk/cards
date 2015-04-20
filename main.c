@@ -33,7 +33,7 @@
 
 struct hero the_hero;
 
-unsigned WINDOW_COLS = 128, WINDOW_ROWS = 96;
+unsigned WINDOW_COLS = 96, WINDOW_ROWS = 96;
 
 float frames_per_second;
 

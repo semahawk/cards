@@ -32,9 +32,11 @@ struct actor {
   SLIST_ENTRY(actor) actor;
 };
 
-SLIST_HEAD(actors, actor);
+SLIST_HEAD(rendered_actors, actor);
+SLIST_HEAD(unrendered_actors, actor);
 
-extern struct actors actors;
+extern struct rendered_actors rendered_actors;
+extern struct unrendered_actors unrendered_actors;
 
 void update_actors(void);
 void actor_new(char, char, struct position);

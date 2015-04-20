@@ -14,6 +14,7 @@
 #define MAP_H
 
 #include <stdbool.h>
+#include <math.h>
 
 #include "main.h"
 #include "actor.h"
@@ -25,8 +26,10 @@
 typedef unsigned char tile_t;
 
 /* align value <v> to a <b> boundary */
-#define ALIGNUP(v,b) (((v) + (b) - 1) & ~((b) - 1))
-#define ALIGNDOWN(v,b) ((v) & ~((b) - 1))
+/*#define ALIGNUP(v,b) (((v) + (b) - 1) & ~((b) - 1))*/
+/*#define ALIGNDOWN(v,b) ((v) & ~((b) - 1))*/
+/*#define ALIGNDOWN(v,b) ((v) + ((b) - mod((v), (b))))*/
+#define ALIGNDOWN(v,b) ((v) - mod((v), (b)))
 
 struct chunk {
   tile_t tiles[CHUNK_WIDTH][CHUNK_HEIGHT];
@@ -93,11 +96,10 @@ static inline tile_t tile(int x, int y)
     return chunk->tiles[mod(x, CHUNK_WIDTH)][mod(y, CHUNK_HEIGHT)];
   else
   {
-
     /*printf("calling `tile` with (%d,%d) from %s:%u in `%s`\n", x, y, file, line, func);*/
     /*fflush(stdout);*/
-    return TILE_UNKNOWN;
-}
+    return TILE_TREE;
+  }
 }
 
 /*#define is_passable(x,y) _is_passable(x, y, __FILE__, __LINE__, __func__)*/
@@ -108,9 +110,6 @@ static inline bool is_passable(int x, int y)
   /*printf("calling `is_passable` with (%d,%d) from %s:%u in `%s`\n", x, y, file, line, func);*/
   /*fflush(stdout);*/
 
-  /*if (x >= map_width || y >= map_height)*/
-    /*return false;*/
-
   if (tile(x, y) & TILE_UNPASSABLE)
     return false;
 
@@ -120,13 +119,23 @@ static inline bool is_passable(int x, int y)
   {
     struct actor *actor;
 
-    SLIST_FOREACH(actor, &actors, actor){
+    SLIST_FOREACH(actor, &rendered_actors, actor){
       if (actor->pos.x == x && actor->pos.y == y)
         return false;
     }
   }
 
   return true;
+}
+
+/*
+ * Distance between point <p1> and point <p2> measured in chunks.
+ *
+ * (NOTE: the points are measured in tiles)
+ */
+static inline int distance(int p1, int p2)
+{
+  return abs((ALIGNDOWN(p1, CHUNK_WIDTH) - ALIGNDOWN(p2, CHUNK_WIDTH))) / CHUNK_WIDTH;
 }
 
 #endif /* MAP_H */
