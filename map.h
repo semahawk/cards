@@ -20,33 +20,37 @@
 #include "actor.h"
 #include "scene.h"
 
-#define CHUNK_WIDTH  64
-#define CHUNK_HEIGHT 64
+#define CHUNK_WIDTH  1024
+#define CHUNK_HEIGHT 1024
 
 typedef unsigned char tile_t;
 
-/* align value <v> to a <b> boundary */
-/*#define ALIGNUP(v,b) (((v) + (b) - 1) & ~((b) - 1))*/
-/*#define ALIGNDOWN(v,b) ((v) & ~((b) - 1))*/
-/*#define ALIGNDOWN(v,b) ((v) + ((b) - mod((v), (b))))*/
+/* align value <v> down to a <b> boundary */
 #define ALIGNDOWN(v,b) ((v) - mod((v), (b)))
 
 struct chunk {
   tile_t tiles[CHUNK_WIDTH][CHUNK_HEIGHT];
 };
 
-extern int map_origin_x, map_origin_y;
-extern struct chunk *chunks[3][3];
+struct tiletype {
+  const char *face;
+  char color;
+  uint8_t flags;
+};
 
 /* defines whether the hero can walk on the tile */
 #define TILE_UNPASSABLE    (0x80)
 
+/* all the terrain tile types */
 #define TILE_GRASS         (0x00)
-#define TILE_TREE          (0x01 | TILE_UNPASSABLE)
+#define TILE_TREE          (0x01)
 #define TILE_RIVER         (0x02)
 #define TILE_MAGMA         (0x03)
 
 #define TILE_UNKNOWN       (0xff)
+
+extern int map_origin_x, map_origin_y;
+extern struct chunk *chunks[3][3];
 
 extern int hero_pos_x;
 extern int hero_pos_y;
@@ -57,6 +61,8 @@ extern int map_height;
 extern scene_t map_scene;
 
 extern struct actor *target;
+
+extern struct tiletype tiletypes[];
 
 void move_hero_up(void);
 void move_hero_down(void);
@@ -110,7 +116,7 @@ static inline bool is_passable(int x, int y)
   /*printf("calling `is_passable` with (%d,%d) from %s:%u in `%s`\n", x, y, file, line, func);*/
   /*fflush(stdout);*/
 
-  if (tile(x, y) & TILE_UNPASSABLE)
+  if (tiletypes[tile(x, y)].flags & TILE_UNPASSABLE)
     return false;
 
   if (x == hero_pos_x && y == hero_pos_y)

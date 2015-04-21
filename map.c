@@ -30,6 +30,14 @@
 
 struct chunk *chunks[3][3];
 
+struct tiletype tiletypes[] = {
+  [TILE_GRASS]   = { ",", 'k', 0 },
+  [TILE_TREE]    = { "o", 'g', TILE_UNPASSABLE },
+  [TILE_RIVER]   = { "~", 'b', 0 },
+  [TILE_MAGMA]   = { "*", 'r', 0 },
+  [TILE_UNKNOWN] = { "?", 'r', TILE_UNPASSABLE }
+};
+
 int map_origin_x;
 int map_origin_y;
 
@@ -59,26 +67,6 @@ struct chunk *load_chunk(int x, int y)
   for (i = 0; i < CHUNK_WIDTH; i++)
     for (j = 0; j < CHUNK_HEIGHT; j++)
       n->tiles[i][j] = rand() % 73 ? TILE_GRASS : TILE_TREE;
-
-  /* put 3 randomly placed creatures on the chunk */
-  /*for (i = 0; i < 3; i++){*/
-    /*x = (rand() % CHUNK_WIDTH)  + x;*/
-    /*y = (rand() % CHUNK_HEIGHT) + y;*/
-
-    /*actor_new('g', 'y', (struct position){ x, y });*/
-  /*}*/
-
-  /* make rivers at the chunk's borders (debug purposes) */
-  /* top and left borders are blue, right and bottom are red */
-  for (unsigned i = 0; i < CHUNK_WIDTH; i++){
-    n->tiles[i][0] = TILE_RIVER;
-    n->tiles[i][CHUNK_HEIGHT - 1] = TILE_MAGMA;
-  }
-
-  for (unsigned j = 0; j < CHUNK_WIDTH; j++){
-    n->tiles[0][j] = TILE_RIVER;
-    n->tiles[CHUNK_WIDTH - 1][j] = TILE_MAGMA;
-  }
 
   return n;
 }
@@ -261,23 +249,9 @@ void move_hero_right(void)
 
 void map_draw_tile(tile_t tile, unsigned x, unsigned y)
 {
-  switch (tile){
-    case TILE_GRASS:
-      draws("`k,", x, y);
-      break;
-    case TILE_TREE:
-      draws("`go", x, y);
-      break;
-    case TILE_RIVER:
-      draws("`b,", x, y);
-      break;
-    case TILE_MAGMA:
-      draws("`r,", x, y);
-      break;
-    default:
-      draws("`r?", x, y);
-      break;
-  }
+  current_color = tiletypes[tile].color;
+
+  draws(tiletypes[tile].face, x, y);
 }
 
 void move_target_left(void)
