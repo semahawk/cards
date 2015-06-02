@@ -20,8 +20,8 @@
 #include "actor.h"
 #include "scene.h"
 
-#define CHUNK_WIDTH  1024
-#define CHUNK_HEIGHT 1024
+#define CHUNK_WIDTH  512
+#define CHUNK_HEIGHT 512
 
 typedef unsigned char tile_t;
 

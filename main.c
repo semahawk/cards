@@ -43,6 +43,8 @@ bool running = true;
 bool action_issued  = false;
 unsigned turn = 0;
 
+uint32_t seed = 0;
+
 void main_menu_resume(void);
 
 static struct main_menu_option {
@@ -199,6 +201,11 @@ int main(int argc, char *argv[])
   SDL_Init(SDL_INIT_EVERYTHING);
 
   srand(time(NULL));
+
+  seed = rand();
+  seed = 0xdeadbeef;
+
+  printf("seed 0x%8x\n", seed);
 
   text_init1("./font.bmp");
   screen = SDL_SetVideoMode(WINDOW_COLS * font_width, WINDOW_ROWS * font_height, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);

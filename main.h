@@ -31,6 +31,8 @@ extern SDL_Surface *screen;
 extern bool action_issued;
 extern unsigned turn;
 
+extern uint32_t seed;
+
 void stop_running(void);
 void next_turn(void);
 void skip_turn(void);

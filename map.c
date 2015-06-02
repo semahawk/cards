@@ -32,9 +32,9 @@ struct chunk *chunks[3][3];
 
 struct tiletype tiletypes[] = {
   [TILE_GRASS]   = { ",", 'k', 0 },
-  [TILE_TREE]    = { "o", 'g', TILE_UNPASSABLE },
-  [TILE_RIVER]   = { "~", 'b', 0 },
-  [TILE_MAGMA]   = { "*", 'r', 0 },
+  [TILE_TREE]    = { "&", 'g', 0 },
+  [TILE_RIVER]   = { "2", 'b', 0 },
+  [TILE_MAGMA]   = { "3", 'r', 0 },
   [TILE_UNKNOWN] = { "?", 'r', TILE_UNPASSABLE }
 };
 
@@ -62,11 +62,31 @@ struct chunk *load_chunk(int x, int y)
   struct chunk *n = malloc(sizeof(struct chunk));
   unsigned i, j;
 
+  srand(seed);
+
   printf("loading chunk (%d,%d)\n", x, y);
 
   for (i = 0; i < CHUNK_WIDTH; i++)
     for (j = 0; j < CHUNK_HEIGHT; j++)
-      n->tiles[i][j] = rand() % 73 ? TILE_GRASS : TILE_TREE;
+      n->tiles[i][j] = rand() % 2 ? TILE_TREE : TILE_GRASS;
+
+  printf("smoothing the chunk...\n");
+
+  for (int g = 0; g < 7; g++){
+    for (i = 0; i < CHUNK_WIDTH; i++){
+      for (j = 0; j < CHUNK_HEIGHT; j++){
+        unsigned neighbour_count =
+            n->tiles[i-1][j-1] + n->tiles[i][j-1] + n->tiles[i+1][j-1]
+          + n->tiles[i-1][j]   + 0                + n->tiles[i+1][j]
+          + n->tiles[i-1][j+1] + n->tiles[i][j+1] + n->tiles[i+1][j+1];
+
+        if (neighbour_count > 4)
+          n->tiles[i][j] = TILE_TREE;
+        else if (neighbour_count < 4)
+          n->tiles[i][j] = TILE_GRASS;
+      }
+    }
+  }
 
   return n;
 }
@@ -251,7 +271,7 @@ void map_draw_tile(tile_t tile, unsigned x, unsigned y)
 {
   current_color = tiletypes[tile].color;
 
-  draws(tiletypes[tile].face, x, y);
+  drawch(tiletypes[tile].face[0], x, y);
 }
 
 void move_target_left(void)
@@ -465,11 +485,13 @@ void map_init(void)
 {
   unsigned x, y, i, j;
 
+  srand(seed);
+
   center_x = WINDOW_COLS / 2;
   center_y = WINDOW_ROWS / 2;
 
-  hero_pos_x = 0;
-  hero_pos_y = 0;
+  hero_pos_x = rand() % CHUNK_WIDTH;
+  hero_pos_y = rand() % CHUNK_HEIGHT;
 
   map_origin_x = 0;
   map_origin_y = 0;
