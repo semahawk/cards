@@ -15,6 +15,7 @@
 
 #include "actor.h"
 #include "map.h"
+#include "position.h"
 #include "list.h"
 
 static int actor_update_radius = 4;
@@ -22,22 +23,72 @@ static int actor_update_radius = 4;
 struct rendered_actors rendered_actors = SLIST_HEAD_INITIALIZER();
 struct unrendered_actors unrendered_actors = SLIST_HEAD_INITIALIZER();
 
+void ai_flee(struct actor *actor, void *data)
+{
+  /* run! */
+  struct position new_pos;
+  int delta_x = 0, delta_y = 0;
+  struct actor *danger = (struct actor *)data;
+
+  printf("actor %p at (%d,%d) running from %p at (%d,%d)\n", (void*)actor, actor->pos.x, actor->pos.y, (void*)danger, danger->pos.x, danger->pos.y);
+  fflush(stdout);
+
+  if (danger->pos.x > actor->pos.x)
+    delta_x--;
+  else
+    delta_x++;
+
+  if (danger->pos.y > actor->pos.y)
+    delta_y--;
+  else
+    delta_y++;
+
+  new_pos.x = actor->pos.x + delta_x;
+  new_pos.y = actor->pos.y + delta_y;
+
+  if (is_passable(new_pos.x, new_pos.y))
+    actor->pos = new_pos;
+}
+
+void ai_wander(struct actor *actor, void *data)
+{
+  /* wander about */
+  struct position new_pos;
+  /* supress warning */
+  (void)data;
+
+  /* 15% chance to make a move in random direction */
+  if (rand() % 100 > 15)
+    return;
+
+  new_pos.x = actor->pos.x + ((rand() % 3) - 1);
+  new_pos.y = actor->pos.y + ((rand() % 3) - 1);
+
+  if (is_passable(new_pos.x, new_pos.y))
+    actor->pos = new_pos;
+}
+
 void actor_new(char face, char color, struct position pos)
 {
   struct actor *n = malloc(sizeof(struct actor));
+  struct ai *ai = malloc(sizeof(struct ai));
+
+  ai->action_handler = ai_wander;
+  ai->state = AI_STATE_WANDER;
 
   n->face = face;
   n->color = color;
   n->pos = pos;
   n->effect_num = 0;
   n->hp = 12;
+  n->ai = ai;
 
   printf("created a new actor at (%d,%d)\n", pos.x, pos.y);
 
   memset(n->effects, EFFECT_NONE, sizeof(n->effects));
 
-  unsigned dist_x = distance(pos.x, hero_pos_x);
-  unsigned dist_y = distance(pos.y, hero_pos_y);
+  int dist_x = distance(pos.x, hero_pos_x);
+  int dist_y = distance(pos.y, hero_pos_y);
 
   if (dist_x < 2 && dist_y < 2){
     SLIST_INSERT_HEAD(&rendered_actors, n, actor);
@@ -51,12 +102,12 @@ void actor_new(char face, char color, struct position pos)
 void update_actors(void)
 {
   struct actor *actor, *temp;
-  struct position new_pos;
 
   SLIST_FOREACH_SAFE(actor, &rendered_actors, actor, temp){
     /* let's check if he's alive at all */
     if (actor->hp <= 0){
       SLIST_REMOVE(&rendered_actors, actor, actor, actor);
+      free(actor->ai);
       free(actor);
 
       printf("actor %p has died.\n", (void *)actor);
@@ -80,15 +131,24 @@ void update_actors(void)
       continue;
     }
 
-    /* 15% chance to make a move in random direction */
-    if (rand() % 100 > 15)
-      continue;
+    void *data = NULL;
 
-    new_pos.x = actor->pos.x + ((rand() % 3) - 1);
-    new_pos.y = actor->pos.y + ((rand() % 3) - 1);
+    /* here we can actually update the actor */
+    /* let's see how things have changed */
+    if ((data = danger_nearby(actor)) != NULL){
+      /*printf("changing actor's %p behaviour state to 'flee'\n", (void *)actor);*/
 
-    if (is_passable(new_pos.x, new_pos.y))
-      actor->pos = new_pos;
+      actor->ai->action_handler = &ai_flee;
+      actor->ai->state = AI_STATE_FLEE;
+    } else {
+      /*printf("changing actor's %p behaviour state to 'wander'\n", (void *)actor);*/
+
+      actor->ai->action_handler = &ai_wander;
+      actor->ai->state = AI_STATE_WANDER;
+    }
+
+    /* update the actor according to his state */
+    actor->ai->action_handler(actor, data);
   }
 
   SLIST_FOREACH_SAFE(actor, &unrendered_actors, actor, temp){
@@ -147,6 +207,27 @@ void actor_remove_effect(struct actor *actor, enum effect effect)
       break;
     }
   }
+}
+
+struct actor *danger_nearby(struct actor *actor)
+{
+  struct actor *other;
+  struct actor *ret = NULL;
+  int shortest = 100000;
+  int distance;
+
+  SLIST_FOREACH(other, &rendered_actors, actor){
+    if (other == actor) continue;
+
+    if ((distance = distance_in_tiles(actor->pos, other->pos)) < 7){
+      if (distance < shortest){
+        shortest = distance;
+        ret = other;
+      }
+    }
+  }
+
+  return ret;
 }
 
 /*

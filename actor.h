@@ -16,6 +16,25 @@
 #include "main.h"
 #include "position.h"
 
+struct actor;
+
+enum ai_state {
+  AI_STATE_WANDER,
+  AI_STATE_FLEE,
+  AI_STATE_ATTACK,
+};
+
+enum ai_condition {
+  AI_COND_TRANQUILLITY,
+  AI_COND_DANGER,
+  AI_COND_PREY_OPPORTUNITY,
+};
+
+struct ai {
+  enum ai_state state;
+  void (*action_handler)(struct actor *, void *);
+};
+
 enum effect {
   EFFECT_NONE = 0,
   EFFECT_TARGETED,
@@ -23,12 +42,13 @@ enum effect {
 };
 
 struct actor {
+  struct position pos;
   char face;
   char color;
-  struct position pos;
   int hp;
   unsigned effect_num;
   enum effect effects[12];
+  struct ai *ai;
   SLIST_ENTRY(actor) actor;
 };
 
@@ -44,6 +64,8 @@ void actor_apply_effect(struct actor *, enum effect);
 void actor_remove_effect(struct actor *, enum effect);
 
 struct actor *actor_is_at_pos(struct position);
+
+struct actor *danger_nearby(struct actor *);
 
 #endif /* ACTOR_H */
 

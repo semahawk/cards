@@ -490,8 +490,8 @@ void map_init(void)
   center_x = WINDOW_COLS / 2;
   center_y = WINDOW_ROWS / 2;
 
-  hero_pos_x = rand() % CHUNK_WIDTH;
-  hero_pos_y = rand() % CHUNK_HEIGHT;
+  hero_pos_x = 5;
+  hero_pos_y = 5;
 
   map_origin_x = 0;
   map_origin_y = 0;
@@ -501,7 +501,15 @@ void map_init(void)
       chunks[i][j] = load_chunk(map_origin_x + (i - 1) * CHUNK_WIDTH,
                                 map_origin_y + (j - 1) * CHUNK_HEIGHT);
 
-  actor_new('g', 'y', (struct position){ 3, 3 });
+  actor_new('d', 'r', (struct position){ 8, 2 });
+  actor_new('g', 'y', (struct position){ 2, 2 });
+  actor_new('m', 'b', (struct position){ 8, 8 });
+  actor_new('h', 'w', (struct position){ 2, 8 });
+
+  actor_new('d', 'w', (struct position){ 8+17, 2 });
+  actor_new('g', 'b', (struct position){ 2+17, 2 });
+  actor_new('m', 'y', (struct position){ 8+17, 8 });
+  actor_new('h', 'r', (struct position){ 2+17, 8 });
 
   j = 0;
 

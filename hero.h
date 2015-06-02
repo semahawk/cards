@@ -21,9 +21,9 @@
 #define MAX_HERO_NAME_LEN 32
 
 struct hero {
+  struct position pos;
   char name[MAX_HERO_NAME_LEN + 1];
   SLIST_HEAD(, inv_elem) inv;
-  struct position pos;
 };
 
 #endif /* HERO_H */

@@ -38,6 +38,8 @@ void next_turn(void);
 void skip_turn(void);
 
 #define mod(a,b) (((a < 0) ? ((a % b) + b) : a) % b)
+#define MAX(a,b) ((a > b) ? (a) : (b))
+#define MIN(a,b) ((a < b) ? (a) : (b))
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(*a))
 
