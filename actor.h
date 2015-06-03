@@ -25,12 +25,24 @@ enum ai_state {
 };
 
 enum ai_condition {
-  AI_COND_TRANQUILLITY,
   AI_COND_DANGER,
-  AI_COND_PREY_OPPORTUNITY,
+  AI_COND_TRANQUILLITY,
+};
+
+/*enum ai_archetype {
+  AI_PREDATOR,
+  AI_PREY,
+  AI_ARCHETYPES_NUM
+};*/
+
+struct ai_transition {
+  enum ai_state     from;
+  enum ai_condition cond;
+  enum ai_state     to;
 };
 
 struct ai {
+  struct ai_transition *archetype;
   enum ai_state state;
   void (*action_handler)(struct actor *, void *);
 };
@@ -58,8 +70,11 @@ SLIST_HEAD(unrendered_actors, actor);
 extern struct rendered_actors rendered_actors;
 extern struct unrendered_actors unrendered_actors;
 
+extern struct ai_transition ai_predator[];
+extern struct ai_transition ai_prey[];
+
 void update_actors(void);
-void actor_new(char, char, struct position);
+void actor_new(char, char, struct position, struct ai_transition *);
 void actor_apply_effect(struct actor *, enum effect);
 void actor_remove_effect(struct actor *, enum effect);
 

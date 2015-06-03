@@ -30,8 +30,8 @@ void ai_flee(struct actor *actor, void *data)
   int delta_x = 0, delta_y = 0;
   struct actor *danger = (struct actor *)data;
 
-  printf("actor %p at (%d,%d) running from %p at (%d,%d)\n", (void*)actor, actor->pos.x, actor->pos.y, (void*)danger, danger->pos.x, danger->pos.y);
-  fflush(stdout);
+  /*printf("actor %p at (%d,%d) is running from %p at (%d,%d)\n", (void*)actor, actor->pos.x, actor->pos.y, (void*)danger, danger->pos.x, danger->pos.y);*/
+  /*fflush(stdout);*/
 
   if (danger->pos.x > actor->pos.x)
     delta_x--;
@@ -68,13 +68,72 @@ void ai_wander(struct actor *actor, void *data)
     actor->pos = new_pos;
 }
 
-void actor_new(char face, char color, struct position pos)
+void ai_attack(struct actor *actor, void *data)
+{
+  /* head towards the target */
+  struct position new_pos;
+  int delta_x = 0, delta_y = 0;
+  struct actor *prey = (struct actor *)data;
+
+  printf("actor '%c' (%p) at (%d,%d) is chasing '%c' (%p) at (%d,%d)\n", actor->face, (void*)actor, actor->pos.x, actor->pos.y, prey->face, (void*)prey, prey->pos.x, prey->pos.y);
+  fflush(stdout);
+
+  if (distance(actor->pos, prey->pos) <= 1){
+    /* the actor is close enough to the prey to attack it */
+    prey->hp--;
+  } else {
+    /* the actor has some distance yet to walk */
+    if (prey->pos.x > actor->pos.x)
+      delta_x++;
+    else
+      delta_x--;
+
+    if (prey->pos.y > actor->pos.y)
+      delta_y++;
+    else
+      delta_y--;
+
+    new_pos.x = actor->pos.x + delta_x;
+    new_pos.y = actor->pos.y + delta_y;
+
+    if (is_passable(new_pos.x, new_pos.y))
+      actor->pos = new_pos;
+  }
+}
+
+void (*ai_func_handlers[])(struct actor *, void *) =
+{
+  [AI_STATE_FLEE]   = ai_flee,
+  [AI_STATE_WANDER] = ai_wander,
+  [AI_STATE_ATTACK] = ai_attack,
+};
+
+struct ai_transition ai_predator[] =
+{
+  { AI_STATE_WANDER, AI_COND_DANGER, AI_STATE_ATTACK },
+  { AI_STATE_WANDER, AI_COND_TRANQUILLITY, AI_STATE_WANDER },
+  { AI_STATE_ATTACK, AI_COND_DANGER, AI_STATE_ATTACK },
+  { AI_STATE_ATTACK, AI_COND_TRANQUILLITY, AI_STATE_WANDER },
+  { -1, -1, -1 }
+};
+
+struct ai_transition ai_prey[] =
+{
+  { AI_STATE_WANDER, AI_COND_DANGER, AI_STATE_FLEE },
+  { AI_STATE_WANDER, AI_COND_TRANQUILLITY, AI_STATE_WANDER },
+  { AI_STATE_FLEE, AI_COND_DANGER, AI_STATE_WANDER },
+  { AI_STATE_FLEE, AI_COND_TRANQUILLITY, AI_STATE_WANDER },
+  { -1, -1, -1 }
+};
+
+void actor_new(char face, char color, struct position pos, struct ai_transition *archetype)
 {
   struct actor *n = malloc(sizeof(struct actor));
   struct ai *ai = malloc(sizeof(struct ai));
 
   ai->action_handler = ai_wander;
   ai->state = AI_STATE_WANDER;
+  ai->archetype = archetype;
 
   n->face = face;
   n->color = color;
@@ -128,19 +187,23 @@ void update_actors(void)
     }
 
     void *data = NULL;
+    enum ai_condition cond;
 
     /* here we can actually update the actor */
     /* let's see how things have changed */
     if ((data = danger_nearby(actor)) != NULL){
-      /*printf("changing actor's %p behaviour state to 'flee'\n", (void *)actor);*/
-
-      actor->ai->action_handler = &ai_flee;
-      actor->ai->state = AI_STATE_FLEE;
+      cond = AI_COND_DANGER;
     } else {
-      /*printf("changing actor's %p behaviour state to 'wander'\n", (void *)actor);*/
+      cond = AI_COND_TRANQUILLITY;
+    }
 
-      actor->ai->action_handler = &ai_wander;
-      actor->ai->state = AI_STATE_WANDER;
+    for (struct ai_transition *t = actor->ai->archetype; t->from != -1; t++){
+      if (t->from == actor->ai->state && t->cond == cond){
+      /*printf("actor %p: %d -> %d -> %d\n", (void*)actor, t->from, t->cond, t->to);*/
+        actor->ai->state = t->to;
+        actor->ai->action_handler = ai_func_handlers[t->to];
+        break;
+      }
     }
 
     /* update the actor according to his state */
@@ -214,7 +277,7 @@ struct actor *danger_nearby(struct actor *actor)
   SLIST_FOREACH(other, &rendered_actors, actor){
     if (other == actor) continue;
 
-    if ((dist = distance(actor->pos, other->pos)) < 7){
+    if ((dist = distance(actor->pos, other->pos)) < 13){
       if (dist < shortest){
         shortest = dist;
         ret = other;

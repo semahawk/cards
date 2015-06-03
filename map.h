@@ -138,7 +138,7 @@ static inline bool is_passable(int x, int y)
 static inline int distance(struct position p1, struct position p2)
 {
   /* use the Pythagorean formula */
-  return round(sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y)));
+  return floor(sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y)));
 }
 
 #endif /* MAP_H */

@@ -498,15 +498,15 @@ void map_init(void)
       chunks[i][j] = load_chunk(map_origin_x + (i - 1) * CHUNK_WIDTH,
                                 map_origin_y + (j - 1) * CHUNK_HEIGHT);
 
-  actor_new('d', 'r', (struct position){ 8, 2 });
-  actor_new('g', 'y', (struct position){ 2, 2 });
-  actor_new('m', 'b', (struct position){ 8, 8 });
-  actor_new('h', 'w', (struct position){ 2, 8 });
+  actor_new('d', 'r', (struct position){ 8, 2 }, ai_predator);
+  actor_new('g', 'y', (struct position){ 2, 2 }, ai_prey);
+  actor_new('m', 'b', (struct position){ 8, 8 }, ai_predator);
+  actor_new('h', 'w', (struct position){ 2, 8 }, ai_prey);
 
-  actor_new('d', 'w', (struct position){ 8+17, 2 });
-  actor_new('g', 'b', (struct position){ 2+17, 2 });
-  actor_new('m', 'y', (struct position){ 8+17, 8 });
-  actor_new('h', 'r', (struct position){ 2+17, 8 });
+  actor_new('d', 'w', (struct position){ 8+17, 2 }, ai_predator);
+  actor_new('g', 'b', (struct position){ 2+17, 2 }, ai_prey);
+  actor_new('m', 'y', (struct position){ 8+17, 8 }, ai_predator);
+  actor_new('h', 'r', (struct position){ 2+17, 8 }, ai_prey);
 
   j = 0;
 
