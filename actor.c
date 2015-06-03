@@ -116,8 +116,6 @@ void update_actors(void)
       continue;
     }
 
-    /*printf("actor %p (%d,%d): distance %d, %d\n", (void *)actor, actor->pos.x, actor->pos.y, distance(actor->pos.x, hero_pos_x), distance(actor->pos.y, hero_pos_y));*/
-
     /* let's see if the actor is outside of the rendered portion of the map */
     /* if so, let's place him in the second list */
     if (distance(actor->pos, the_hero.pos) >= 2 * CHUNK_WIDTH){

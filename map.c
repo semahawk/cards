@@ -49,9 +49,6 @@ static int shown_chunk_y;
 
 static unsigned effect_counter = 0;
 
-int hero_pos_x = 0;
-int hero_pos_y = 0;
-
 scene_t map_scene = (scene_t){ map_scene_preswitch, map_scene_render };
 
 struct actor *target = NULL;
@@ -94,7 +91,7 @@ struct chunk *load_chunk(int x, int y)
 void move_hero_up(void)
 {
   /* user stepped over to the northern chunk */
-  if (hero_pos_y - 1 < map_origin_y){
+  if (the_hero.pos.y - 1 < map_origin_y){
     map_origin_y -= CHUNK_HEIGHT;
 
     printf("crossed the northern chunk boundary\n"
@@ -129,8 +126,8 @@ void move_hero_up(void)
     chunks[2][0] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y - CHUNK_HEIGHT);
   }
 
-  if (is_passable(hero_pos_x, hero_pos_y - 1))
-    hero_pos_y--;
+  if (is_passable(the_hero.pos.x, the_hero.pos.y - 1))
+    the_hero.pos.y--;
 
   action_issued = true;
 }
@@ -138,7 +135,7 @@ void move_hero_up(void)
 void move_hero_down(void)
 {
   /* user stepped over to the southern chunk */
-  if (hero_pos_y + 1 >= map_origin_y + CHUNK_HEIGHT){
+  if (the_hero.pos.y + 1 >= map_origin_y + CHUNK_HEIGHT){
     map_origin_y += CHUNK_HEIGHT;
 
     printf("crossed the southern chunk boundary\n"
@@ -173,8 +170,8 @@ void move_hero_down(void)
     chunks[2][2] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y + CHUNK_HEIGHT);
   }
 
-  if (is_passable(hero_pos_x, hero_pos_y + 1))
-    hero_pos_y++;
+  if (is_passable(the_hero.pos.x, the_hero.pos.y + 1))
+    the_hero.pos.y++;
 
   action_issued = true;
 }
@@ -182,7 +179,7 @@ void move_hero_down(void)
 void move_hero_left(void)
 {
   /* user stepped over to the western chunk */
-  if (hero_pos_x - 1 < map_origin_x){
+  if (the_hero.pos.x - 1 < map_origin_x){
     map_origin_x -= CHUNK_WIDTH;
 
     printf("crossed the western chunk boundary\n"
@@ -217,8 +214,8 @@ void move_hero_left(void)
     chunks[0][2] = load_chunk(map_origin_x - CHUNK_WIDTH, map_origin_y + CHUNK_HEIGHT);
   }
 
-  if (is_passable(hero_pos_x - 1, hero_pos_y))
-    hero_pos_x--;
+  if (is_passable(the_hero.pos.x - 1, the_hero.pos.y))
+    the_hero.pos.x--;
 
   action_issued = true;
 }
@@ -226,7 +223,7 @@ void move_hero_left(void)
 void move_hero_right(void)
 {
   /* user stepped over to the eastern chunk */
-  if (hero_pos_x + 1 >= map_origin_x + CHUNK_WIDTH){
+  if (the_hero.pos.x + 1 >= map_origin_x + CHUNK_WIDTH){
     map_origin_x += CHUNK_WIDTH;
 
     printf("crossed the eastern chunk boundary\n"
@@ -261,8 +258,8 @@ void move_hero_right(void)
     chunks[2][2] = load_chunk(map_origin_x + CHUNK_WIDTH, map_origin_y + CHUNK_HEIGHT);
   }
 
-  if (is_passable(hero_pos_x + 1, hero_pos_y))
-    hero_pos_x++;
+  if (is_passable(the_hero.pos.x + 1, the_hero.pos.y))
+    the_hero.pos.x++;
 
   action_issued = true;
 }
@@ -362,7 +359,7 @@ void pick_item(void)
   for (int i = 0; i < 10; i++){
     item = &items[i];
 
-    if (item->pos.x == hero_pos_x && item->pos.y == hero_pos_y){
+    if (item->pos.x == the_hero.pos.x && item->pos.y == the_hero.pos.y){
       add_to_inventory(item);
       /* TODO remove the item from the map */
     }
@@ -396,8 +393,8 @@ void map_scene_render(void)
     effect_counter++;
 
   /* default top-left coordinate of the map's chunk we want to display */
-  shown_chunk_x = hero_pos_x - center_x;
-  shown_chunk_y = hero_pos_y - center_y;
+  shown_chunk_x = the_hero.pos.x - center_x;
+  shown_chunk_y = the_hero.pos.y - center_y;
 
   /* draw the chunk of the map onto the screen */
   /* starting from 1 to start below the infobar */
@@ -456,7 +453,7 @@ void map_scene_render(void)
   for (int i = 0; i < 10; i++){
     item = items[i];
 
-    if (hero_pos_x == item.pos.x && hero_pos_y == item.pos.y){
+    if (the_hero.pos.x == item.pos.x && the_hero.pos.y == item.pos.y){
       draws(item.name, x - strlen(item.name) / 2, y - 2);
     }
   }
@@ -490,8 +487,8 @@ void map_init(void)
   center_x = WINDOW_COLS / 2;
   center_y = WINDOW_ROWS / 2;
 
-  hero_pos_x = 5;
-  hero_pos_y = 5;
+  the_hero.pos.x = 5;
+  the_hero.pos.y = 5;
 
   map_origin_x = 0;
   map_origin_y = 0;

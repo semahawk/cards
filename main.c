@@ -106,14 +106,14 @@ void draw_infobar(void)
   x += 6;
   draws("   ", x, 0);
 
-  drawd(hero_pos_x, x, 0);
+  drawd(the_hero.pos.x, x, 0);
   x += 5;
 
   draws("`by:`c", x, 0);
   x += 6;
   draws("   ", x, 0);
 
-  drawd(hero_pos_y, x, 0);
+  drawd(the_hero.pos.y, x, 0);
   x += 4;
 
   draws("`bturn:`c", x, 0);

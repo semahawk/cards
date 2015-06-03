@@ -53,9 +53,6 @@ struct tiletype {
 extern int map_origin_x, map_origin_y;
 extern struct chunk *chunks[3][3];
 
-extern int hero_pos_x;
-extern int hero_pos_y;
-
 extern int map_width;
 extern int map_height;
 
@@ -120,7 +117,7 @@ static inline bool is_passable(int x, int y)
   if (tiletypes[tile(x, y)].flags & TILE_UNPASSABLE)
     return false;
 
-  if (x == hero_pos_x && y == hero_pos_y)
+  if (x == the_hero.pos.x && y == the_hero.pos.y)
     return false;
 
   {

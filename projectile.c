@@ -47,11 +47,11 @@ void shoot_projectile(void)
     /*return;*/
   }
 
-  /*angle = calc_angle((struct position){ hero_pos_x, hero_pos_y }, target->pos);*/
-  /*projectile_new(hero_pos_x + 0.5, hero_pos_y + 0.5, angle, 1);*/
+  /*angle = calc_angle((struct position){ the_hero.pos.x, the_hero.pos.y }, target->pos);*/
+  /*projectile_new(the_hero.pos.x + 0.5, the_hero.pos.y + 0.5, angle, 1);*/
 
   for (unsigned i = 0; i < 13; i++){
-    projectile_new(hero_pos_x + 0.5, hero_pos_y + 0.5, deg2rad(360 / 13 * i + (angle += 13)), 1);
+    projectile_new(the_hero.pos.x + 0.5, the_hero.pos.y + 0.5, deg2rad(360 / 13 * i + (angle += 13)), 1);
   }
 
   action_issued = true;
