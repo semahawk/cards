@@ -136,22 +136,9 @@ static inline bool is_passable(int x, int y)
 }
 
 /*
- * Distance between one-dimensional point <p1> and one-dimensional point <p2>
- * measured in chunks.
- *
- * (NOTE: the points are measured in tiles)
- */
-static inline int distance(int p1, int p2)
-{
-  return abs((ALIGNDOWN(p1, CHUNK_WIDTH) - ALIGNDOWN(p2, CHUNK_WIDTH))) / CHUNK_WIDTH;
-}
-
-/*
  * Distance between point <p1> and point <p2> measured in tiles.
- *
- * (NOTE: the points are measured in tiles)
  */
-static inline int distance_in_tiles(struct position p1, struct position p2)
+static inline int distance(struct position p1, struct position p2)
 {
   /* use the Pythagorean formula */
   return round(sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y)));

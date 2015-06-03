@@ -20,7 +20,7 @@
 
 #define FPS_CAP       (25)
 
-#define GAME_SPEED    (23)
+#define GAME_SPEED    (30)
 #define MAX_FRAMESKIP (10)
 
 extern struct hero the_hero;

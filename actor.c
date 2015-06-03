@@ -87,12 +87,11 @@ void actor_new(char face, char color, struct position pos)
 
   memset(n->effects, EFFECT_NONE, sizeof(n->effects));
 
-  int dist_x = distance(pos.x, hero_pos_x);
-  int dist_y = distance(pos.y, hero_pos_y);
+  int dist = distance(pos, the_hero.pos);
 
-  if (dist_x < 2 && dist_y < 2){
+  if (dist < 2 * CHUNK_WIDTH){
     SLIST_INSERT_HEAD(&rendered_actors, n, actor);
-  } else if (dist_x > actor_update_radius && dist_y > actor_update_radius){
+  } else if (dist > actor_update_radius){
     /* huh... nop? */
   } else {
     SLIST_INSERT_HEAD(&unrendered_actors, n, actor);
@@ -121,8 +120,7 @@ void update_actors(void)
 
     /* let's see if the actor is outside of the rendered portion of the map */
     /* if so, let's place him in the second list */
-    if ((distance(actor->pos.x, hero_pos_x) >= 2) ||
-        (distance(actor->pos.y, hero_pos_y) >= 2)){
+    if (distance(actor->pos, the_hero.pos) >= 2 * CHUNK_WIDTH){
       SLIST_REMOVE(&rendered_actors, actor, actor, actor);
       SLIST_INSERT_HEAD(&unrendered_actors, actor, actor);
 
@@ -154,8 +152,7 @@ void update_actors(void)
   SLIST_FOREACH_SAFE(actor, &unrendered_actors, actor, temp){
     /* see if the actor came inside of the viewport, and if so, transfer him to
      * the appropriate list */
-    if ((distance(actor->pos.x, hero_pos_x) < 2) &&
-        (distance(actor->pos.y, hero_pos_y) < 2)){
+    if (distance(actor->pos, the_hero.pos) < 2 * CHUNK_WIDTH){
       SLIST_REMOVE(&unrendered_actors, actor, actor, actor);
       SLIST_INSERT_HEAD(&rendered_actors, actor, actor);
 
@@ -214,14 +211,14 @@ struct actor *danger_nearby(struct actor *actor)
   struct actor *other;
   struct actor *ret = NULL;
   int shortest = 100000;
-  int distance;
+  int dist;
 
   SLIST_FOREACH(other, &rendered_actors, actor){
     if (other == actor) continue;
 
-    if ((distance = distance_in_tiles(actor->pos, other->pos)) < 7){
-      if (distance < shortest){
-        shortest = distance;
+    if ((dist = distance(actor->pos, other->pos)) < 7){
+      if (dist < shortest){
+        shortest = dist;
         ret = other;
       }
     }
