@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "actor.h"
 #include "map.h"
@@ -72,29 +73,16 @@ void ai_attack(struct actor *actor, void *data)
 {
   /* head towards the target */
   struct position new_pos;
-  int delta_x = 0, delta_y = 0;
   struct actor *prey = (struct actor *)data;
 
-  printf("actor '%c' (%p) at (%d,%d) is chasing '%c' (%p) at (%d,%d)\n", actor->face, (void*)actor, actor->pos.x, actor->pos.y, prey->face, (void*)prey, prey->pos.x, prey->pos.y);
-  fflush(stdout);
+  /*printf("actor '%c' (%p) at (%d,%d) is chasing '%c' (%p) at (%d,%d)\n", actor->face, (void*)actor, actor->pos.x, actor->pos.y, prey->face, (void*)prey, prey->pos.x, prey->pos.y);*/
+  /*fflush(stdout);*/
 
   if (distance(actor->pos, prey->pos) <= 1){
     /* the actor is close enough to the prey to attack it */
     prey->hp--;
   } else {
-    /* the actor has some distance yet to walk */
-    if (prey->pos.x > actor->pos.x)
-      delta_x++;
-    else
-      delta_x--;
-
-    if (prey->pos.y > actor->pos.y)
-      delta_y++;
-    else
-      delta_y--;
-
-    new_pos.x = actor->pos.x + delta_x;
-    new_pos.y = actor->pos.y + delta_y;
+    new_pos = path_find_next_step(actor->pos, prey->pos);
 
     if (is_passable(new_pos.x, new_pos.y))
       actor->pos = new_pos;
@@ -271,7 +259,7 @@ struct actor *danger_nearby(struct actor *actor)
 {
   struct actor *other;
   struct actor *ret = NULL;
-  int shortest = 100000;
+  int shortest = INT_MAX;
   int dist;
 
   SLIST_FOREACH(other, &rendered_actors, actor){
@@ -284,6 +272,12 @@ struct actor *danger_nearby(struct actor *actor)
       }
     }
   }
+
+  /* treat the hero as a potential danger */
+  /*if (distance(actor->pos, the_hero.pos) < 13){*/
+    /* well.. yeaah, don't try that at home */
+    /*ret = (struct actor *)&the_hero;*/
+  /*}*/
 
   return ret;
 }

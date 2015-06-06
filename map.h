@@ -72,6 +72,8 @@ void map_fini(void);
 void map_scene_preswitch(void);
 void map_scene_render(void);
 
+struct position path_find_next_step(struct position start, struct position destination);
+
 struct chunk *load_chunk(int x, int y);
 
 static inline struct chunk *get_chunk(int x, int y)
@@ -139,6 +141,42 @@ static inline int distance(struct position p1, struct position p2)
 {
   /* use the Pythagorean formula */
   return floor(sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y)));
+}
+
+/*
+ * Manhattan distance between point <p1> and point <p2> measured in tiles
+ * multiplied by ten.
+ */
+static inline int manhattan_distance(struct position p1, struct position p2)
+{
+  return (abs(p1.x - p2.x) + abs(p1.y - p2.y)) * 10;
+}
+
+/*
+ * The cost it takes to step from tile in position <p1> onto position <p2>
+ */
+static inline int step_cost(struct position p1, struct position p2)
+{
+  int delta_x = p1.x - p2.x;
+  int delta_y = p1.y - p2.y;
+
+  /* if any of the deltas is zero, then they're orthogonal */
+  /* in this case, the cost is 1 multiplied by 10 */
+  if (delta_x == 0 || delta_y == 0)
+    return 10;
+  /* otherwise (if they're diagonal to each other) the cost is roughly
+   * the square root of 2 multiplied by 10 */
+  else
+    return 14;
+}
+
+/*
+ * Could've been a macro, decided to go with static inline.
+ * struct comparison? no thank you
+ */
+static inline bool poseq(struct position p1, struct position p2)
+{
+  return p1.x == p2.x && p1.y == p2.y;
 }
 
 #endif /* MAP_H */
