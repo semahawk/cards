@@ -31,11 +31,11 @@
 struct chunk *chunks[3][3];
 
 struct tiletype tiletypes[] = {
-  [TILE_GRASS]   = { ",", 'k', 0 },
-  [TILE_TREE]    = { "&", 'g', 0 },
-  [TILE_RIVER]   = { "~", 'b', 0 },
-  [TILE_MAGMA]   = { "*", 'r', 0 },
-  [TILE_UNKNOWN] = { "?", 'r', TILE_UNPASSABLE }
+  [TILE_GRASS]   = { ",.\";",    "ggkk",       0 },
+  [TILE_TREE]    = { "&&&&&&!%", "gggggggg",   0 },
+  [TILE_RIVER]   = { "~",        "b",          0 },
+  [TILE_MAGMA]   = { "*",        "r",          0 },
+  [TILE_UNKNOWN] = { "?",        "r",          TILE_UNPASSABLE }
 };
 
 int map_origin_x;
@@ -266,9 +266,14 @@ void move_hero_right(void)
 
 void map_draw_tile(tile_t tile, unsigned x, unsigned y)
 {
-  current_color = tiletypes[tile].color;
+  /* I have no idea what I'm doing... */
+  /* but it works so that's good */
+  int n = ((shown_chunk_x + x) + (shown_chunk_y + y) * 127) << 13;
+  int idx = (hash(n)) % strlen(tiletypes[tile].faces);
 
-  drawch(tiletypes[tile].face[0], x, y);
+  current_color = tiletypes[tile].colors[idx];
+
+  drawch(tiletypes[tile].faces[idx], x, y);
 }
 
 void move_target_left(void)
@@ -574,9 +579,12 @@ static int distance_via_parents(struct pathfinding_tile *tile)
  * Find a path from position <start> to position <destination> using
  * the A* algorithm
  *
+ * Returns the position of the next step a unit should take to reach it's
+ * destination
+ *
  * NOTE: at this moment this algorithm will *always* try to find the path and
  *       given the roughly infinite map size there is a potential for
- *       some infinite inefficiency
+ *       some infinite inefficiency in case there is no path possible
  */
 struct position path_find_next_step(struct position start, struct position destination)
 {
@@ -606,18 +614,6 @@ struct position path_find_next_step(struct position start, struct position desti
      * lowest `distance` cost (we're inserting elements to the open list in order
      * so this happens to be the first one) */
     current = SLIST_FIRST(&open);
-
-    /* mark the tile on the map to get a visual */
-    {
-      struct chunk *chunk = get_chunk(current->pos.x, current->pos.y);
-
-      if (chunk)
-        chunk->tiles[mod(current->pos.x, CHUNK_WIDTH)][mod(current->pos.y, CHUNK_HEIGHT)] = TILE_MAGMA;
-
-      /* update the map to see the change */
-      map_scene_render();
-      SDL_Flip(screen);
-    }
 
     /* switch the current tile to the closed list */
     SLIST_REMOVE(&open, current, pathfinding_tile, next);
