@@ -59,13 +59,13 @@ struct chunk *load_chunk(int x, int y)
   struct chunk *n = malloc(sizeof(struct chunk));
   unsigned i, j;
 
-  srand(seed);
+  srand(seed * ((x + y * 127) << 13));
 
   printf("loading chunk (%d,%d)\n", x, y);
 
   for (i = 0; i < CHUNK_WIDTH; i++)
     for (j = 0; j < CHUNK_HEIGHT; j++)
-      n->tiles[i][j] = rand() % 2 ? TILE_TREE : TILE_GRASS;
+      n->tiles[i][j] = rand() % 100 < 52 ? TILE_TREE : TILE_GRASS;
 
   printf("smoothing the chunk...\n");
 
