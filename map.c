@@ -599,7 +599,6 @@ struct position path_find_next_step(struct position start, struct position desti
   t->parent = NULL;
 
   /* add the starting tile to the open list */
-  /*printf("inserting the starting tile (%p) at (%d,%d) to the open list\n", (void*)t, t->pos.x, t->pos.y);*/
   SLIST_INSERT_HEAD(&open, t, next);
 
   while (1){
@@ -607,8 +606,6 @@ struct position path_find_next_step(struct position start, struct position desti
      * lowest `distance` cost (we're inserting elements to the open list in order
      * so this happens to be the first one) */
     current = SLIST_FIRST(&open);
-    /*printf("\n-----------------------------------------------------\n");*/
-    /*printf("\ngrabbing the FIRST tile (%p) at (%d,%d) from open list\n", (void*)current, current->pos.x, current->pos.y);*/
 
     /* mark the tile on the map to get a visual */
     {
@@ -623,9 +620,7 @@ struct position path_find_next_step(struct position start, struct position desti
     }
 
     /* switch the current tile to the closed list */
-    /*printf("removing it...\n");*/
     SLIST_REMOVE(&open, current, pathfinding_tile, next);
-    /*printf("and inserting to the closed list\n");*/
     SLIST_INSERT_HEAD(&closed, current, next);
 
     /* go over through the current tile's neighbours */
@@ -661,8 +656,6 @@ struct position path_find_next_step(struct position start, struct position desti
           }
         }
 
-        /*printf("\n\ninspecting neighbouring tile (%p) at (%d,%d)\n", (void*)current, current->pos.x + delta_x, current->pos.y + delta_y);*/
-
         /* let's see if the tile already is in the open list */
         bool is_in_open = false;
 
@@ -686,25 +679,17 @@ struct position path_find_next_step(struct position start, struct position desti
           neighbour->distance_from_start = distance_via_parents(neighbour);
           neighbour->distance_to_destination = manhattan_distance(neighbour->pos, destination);
 
-          /*printf("   distance_from_start = %d\n", neighbour->distance_from_start);*/
-          /*printf("   distance_to_destination = %d\n", neighbour->distance_to_destination);*/
-
           t = SLIST_FIRST(&open);
-          /*printf("the neighbour (%p) is *not* on the open list...\n", (void*)neighbour);*/
 
           if (SLIST_EMPTY(&open)){
-            /*printf("   inserting it at the beginning of the open list\n");*/
             SLIST_INSERT_HEAD(&open, neighbour, next);
           /* let's see if the tile could be inserted at the very beginning */
           } else if (DIST(neighbour) == DIST(t)){
-            /*printf("   inserting it at the beginning of the open list\n");*/
             SLIST_INSERT_HEAD(&open, neighbour, next);
           } else if (DIST(neighbour) < DIST(t)){
-            /*printf("   inserting it at the beginning of the open list\n");*/
             SLIST_INSERT_HEAD(&open, neighbour, next);
           /* or close to the very beginning */
           } else if (DIST(neighbour) > DIST(t)){
-            /*printf("   inserting it right after the beginning of the open list\n");*/
             SLIST_INSERT_AFTER(t, neighbour, next);
           /* if none of the above, we have to go through every other element
            * on the list and insert the tile accordingly */
@@ -719,28 +704,9 @@ struct position path_find_next_step(struct position start, struct position desti
 
               prev = t;
             }
-            /*printf("   inserted it into the open list\n");*/
           }
-
-          /* mark the tile on the map to get a visual */
-          /*{*/
-            /*struct chunk *chunk = get_chunk(current->pos.x, current->pos.y);*/
-
-            /*if (chunk)*/
-              /*chunk->tiles[mod(current->pos.x, CHUNK_WIDTH)][mod(current->pos.y, CHUNK_HEIGHT)] = TILE_RIVER;*/
-
-            /* update the map to see the change */
-            /*map_scene_render();*/
-            /*SDL_Flip(screen);*/
-          /*}*/
-
-          /*printf("open list dump\n");*/
-          /*SLIST_FOREACH(t, &open, next){*/
-            /*printf("   %p: (%3d,%3d; %2d,%3d; %p)\n", (void*)t, t->pos.x, t->pos.y, t->distance_from_start, t->distance_to_destination, (void*)t->parent);*/
-          /*}*/
         } else {
           /* the tile already is in the open list */
-          /*printf("the neighbour (%p) *is* on the open list\n", (void*)neighbour);*/
 
           /* see if the path to the neighbouring tile is shorter than the path
            * that goes through the current tile */
@@ -754,10 +720,6 @@ struct position path_find_next_step(struct position start, struct position desti
             /* since it's costs have been recalculated, the open list is
              * probably out of sync */
             /* let's simply remove it from the list ... */
-            /*printf("   removing it from the open list to adjust the open list\n");*/
-            /*SLIST_FOREACH(t, &open, next){*/
-              /*printf("   %p: (%3d,%3d; %2d,%3d; %p)\n", (void*)t, t->pos.x, t->pos.y, t->distance_from_start, t->distance_to_destination, (void*)t->parent);*/
-            /*}*/
 
             SLIST_REMOVE(&open, neighbour, pathfinding_tile, next);
 
@@ -770,14 +732,11 @@ struct position path_find_next_step(struct position start, struct position desti
               /* the list is empty, so yeah */
               SLIST_INSERT_HEAD(&open, neighbour, next);
             } else if (DIST(neighbour) == DIST(t)){
-              /*printf("   inserting it at the beginning of the open list\n");*/
               SLIST_INSERT_HEAD(&open, neighbour, next);
             } else if (DIST(neighbour) < DIST(t)){
-              /*printf("   inserting it at the beginning of the open list\n");*/
               SLIST_INSERT_HEAD(&open, neighbour, next);
             /* or close to the very beginning */
             } else if (DIST(neighbour) > DIST(t)){
-              /*printf("   inserting it right after the beginning of the open list\n");*/
               SLIST_INSERT_AFTER(t, neighbour, next);
             /* if none of the above, we have to go through every other element
              * on the list and insert the tile accordingly */
