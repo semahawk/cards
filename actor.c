@@ -109,7 +109,7 @@ struct ai_transition ai_prey[] =
 {
   { AI_STATE_WANDER, AI_COND_DANGER, AI_STATE_FLEE },
   { AI_STATE_WANDER, AI_COND_TRANQUILLITY, AI_STATE_WANDER },
-  { AI_STATE_FLEE, AI_COND_DANGER, AI_STATE_WANDER },
+  { AI_STATE_FLEE, AI_COND_DANGER, AI_STATE_FLEE },
   { AI_STATE_FLEE, AI_COND_TRANQUILLITY, AI_STATE_WANDER },
   { -1, -1, -1 }
 };
@@ -265,7 +265,7 @@ struct actor *danger_nearby(struct actor *actor)
   SLIST_FOREACH(other, &rendered_actors, actor){
     if (other == actor) continue;
 
-    if ((dist = distance(actor->pos, other->pos)) < 13){
+    if ((dist = distance(actor->pos, other->pos)) < 130){
       if (dist < shortest){
         shortest = dist;
         ret = other;

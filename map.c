@@ -34,7 +34,7 @@ struct tiletype tiletypes[] = {
   [TILE_GRASS]   = { ",.\";",    "ggkk",       0 },
   [TILE_TREE]    = { "&&&&&&!%", "gggggggg",   0 },
   [TILE_RIVER]   = { "~",        "b",          0 },
-  [TILE_MAGMA]   = { "*",        "r",          0 },
+  [TILE_MAGMA]   = { "&",        "r",          TILE_UNPASSABLE },
   [TILE_UNKNOWN] = { "?",        "r",          TILE_UNPASSABLE }
 };
 
@@ -492,8 +492,8 @@ void map_init(void)
   center_x = WINDOW_COLS / 2;
   center_y = WINDOW_ROWS / 2;
 
-  the_hero.pos.x = 5;
-  the_hero.pos.y = 5;
+  the_hero.pos.x = 3;
+  the_hero.pos.y = 6;
 
   map_origin_x = 0;
   map_origin_y = 0;
@@ -503,15 +503,20 @@ void map_init(void)
       chunks[i][j] = load_chunk(map_origin_x + (i - 1) * CHUNK_WIDTH,
                                 map_origin_y + (j - 1) * CHUNK_HEIGHT);
 
-  actor_new('d', 'r', (struct position){ 8, 2 }, ai_predator);
-  actor_new('g', 'y', (struct position){ 2, 2 }, ai_predator);
-  actor_new('m', 'b', (struct position){ 8, 8 }, ai_predator);
-  actor_new('h', 'w', (struct position){ 2, 8 }, ai_prey);
+  actor_new('d', 'r', (struct position){ 0, 1 }, ai_predator);
+  actor_new('g', 'y', (struct position){ 6, 3 }, ai_prey);
 
-  actor_new('d', 'w', (struct position){ 8+17, 2 }, ai_predator);
-  actor_new('g', 'b', (struct position){ 2+17, 2 }, ai_prey);
-  actor_new('m', 'y', (struct position){ 8+17, 8 }, ai_predator);
-  actor_new('h', 'r', (struct position){ 2+17, 8 }, ai_prey);
+  for (int z = -35; z <= 5; z++){
+    tile(3, z) = TILE_MAGMA;
+    tile(z-2, 5) = TILE_MAGMA;
+    /*tile(-38, z) = TILE_MAGMA;*/
+    /*tile(z-1, -35) = TILE_MAGMA;*/
+  }
+
+  for (int z = 3; z <= 10; z++){
+    tile(z, 0) = TILE_MAGMA;
+    tile(10, z-2) = TILE_MAGMA;
+  }
 
   j = 0;
 
@@ -581,10 +586,6 @@ static int distance_via_parents(struct pathfinding_tile *tile)
  *
  * Returns the position of the next step a unit should take to reach it's
  * destination
- *
- * NOTE: at this moment this algorithm will *always* try to find the path and
- *       given the roughly infinite map size there is a potential for
- *       some infinite inefficiency in case there is no path possible
  */
 struct position path_find_next_step(struct position start, struct position destination)
 {
@@ -614,6 +615,12 @@ struct position path_find_next_step(struct position start, struct position desti
      * lowest `distance` cost (we're inserting elements to the open list in order
      * so this happens to be the first one) */
     current = SLIST_FIRST(&open);
+
+    /* no path was found - stay put */
+    if (current == NULL){
+      ret = start;
+      goto pathcomplete;
+    }
 
     /* switch the current tile to the closed list */
     SLIST_REMOVE(&open, current, pathfinding_tile, next);
@@ -654,6 +661,7 @@ struct position path_find_next_step(struct position start, struct position desti
 
         /* let's see if the tile already is in the open list */
         bool is_in_open = false;
+        bool broke;
 
         SLIST_FOREACH(t, &open, next){
           if (poseq(t->pos, (struct position){ current->pos.x + delta_x, current->pos.y + delta_y })){
@@ -685,31 +693,38 @@ struct position path_find_next_step(struct position start, struct position desti
           } else if (DIST(neighbour) < DIST(t)){
             SLIST_INSERT_HEAD(&open, neighbour, next);
           /* or close to the very beginning */
-          } else if (DIST(neighbour) > DIST(t)){
+          } else if (SLIST_NEXT(t, next) == NULL && DIST(neighbour) > DIST(t)){
             SLIST_INSERT_AFTER(t, neighbour, next);
           /* if none of the above, we have to go through every other element
            * on the list and insert the tile accordingly */
           } else {
             prev = NULL;
+            broke = false;
 
             SLIST_FOREACH(t, &open, next){
               if (DIST(t) > DIST(neighbour)){
                 SLIST_INSERT_AFTER(prev, neighbour, next);
+                broke = true;
                 break;
               }
 
               prev = t;
             }
+
+            /* if the FOREACH didn't break that would mean we got to the very
+             * end of the list */
+            if (!broke)
+              SLIST_INSERT_AFTER(prev, neighbour, next);
           }
         } else {
           /* the tile already is in the open list */
 
           /* see if the path to the neighbouring tile is shorter than the path
            * that goes through the current tile */
-          if (neighbour->distance_from_start < current->distance_from_start +
+          if (neighbour->distance_from_start > current->distance_from_start +
               step_cost(current->pos, neighbour->pos)){
-            /* change the parent of the neighbouring tile to point to the current one's parent */
-            neighbour->parent = current->parent;
+            /* change the parent of the neighbouring tile to point to the current one */
+            neighbour->parent = current;
             /* recalculate it's costs */
             neighbour->distance_from_start = distance_via_parents(neighbour);
 
@@ -732,21 +747,28 @@ struct position path_find_next_step(struct position start, struct position desti
             } else if (DIST(neighbour) < DIST(t)){
               SLIST_INSERT_HEAD(&open, neighbour, next);
             /* or close to the very beginning */
-            } else if (DIST(neighbour) > DIST(t)){
+            } else if (SLIST_NEXT(t, next) == NULL && DIST(neighbour) > DIST(t)){
               SLIST_INSERT_AFTER(t, neighbour, next);
             /* if none of the above, we have to go through every other element
              * on the list and insert the tile accordingly */
             } else {
               prev = NULL;
+              broke = false;
 
               SLIST_FOREACH(t, &open, next){
                 if (DIST(t) > DIST(neighbour)){
                   SLIST_INSERT_AFTER(prev, neighbour, next);
+                  broke = true;
                   break;
                 }
 
                 prev = t;
               }
+
+              /* if the FOREACH didn't break that would mean we got to the very
+               * end of the list */
+              if (!broke)
+                SLIST_INSERT_AFTER(prev, neighbour, next);
             }
           }
         }

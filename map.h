@@ -90,21 +90,23 @@ static inline struct chunk *get_chunk(int x, int y)
 }
 
 /*#define tile(x,y) _tile(x, y, __FILE__, __LINE__, __func__)*/
+/* yeah that doesn't seem too sensible */
+#define tile(x,y) (*_tile((x),(y)))
 
 /* access a tile in position (x, y) */
 /* it has to be within the range of the loaded chunks */
 /*static inline tile_t _tile(int x, int y, const char *file, unsigned line, const char *func)*/
-static inline tile_t tile(int x, int y)
+static inline tile_t *_tile(int x, int y)
 {
   struct chunk *chunk = get_chunk(x, y);
 
   if (chunk)
-    return chunk->tiles[mod(x, CHUNK_WIDTH)][mod(y, CHUNK_HEIGHT)];
+    return &chunk->tiles[mod(x, CHUNK_WIDTH)][mod(y, CHUNK_HEIGHT)];
   else
   {
     /*printf("calling `tile` with (%d,%d) from %s:%u in `%s`\n", x, y, file, line, func);*/
     /*fflush(stdout);*/
-    return TILE_TREE;
+    return NULL;
   }
 }
 
