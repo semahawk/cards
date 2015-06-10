@@ -434,21 +434,24 @@ void map_scene_render(void)
       unsigned on_the_screen_x = actor->pos.x - shown_chunk_x;
       unsigned on_the_screen_y = actor->pos.y - shown_chunk_y;
 
-      /* FIXME */
-      switch (effect_counter % (actor->effect_num + 1)){
-        case EFFECT_NONE:
-          current_color = actor->color;
-          drawch(actor->face, on_the_screen_x, on_the_screen_y);
-          break;
-        case EFFECT_TARGETED:
-          current_color = 'c';
-          drawch('X', on_the_screen_x, on_the_screen_y);
-          break;
-        case EFFECT_BURNING:
-          current_color = 'r';
-          drawch('~', on_the_screen_x, on_the_screen_y);
-          break;
-      }
+      if (actor->is_dead){
+        drawch('D', on_the_screen_x, on_the_screen_y);
+      } else
+        /* FIXME */
+        switch (effect_counter % (actor->effect_num + 1)){
+          case EFFECT_NONE:
+            current_color = actor->color;
+            drawch(actor->face, on_the_screen_x, on_the_screen_y);
+            break;
+          case EFFECT_TARGETED:
+            current_color = 'c';
+            drawch('X', on_the_screen_x, on_the_screen_y);
+            break;
+          case EFFECT_BURNING:
+            current_color = 'r';
+            drawch('~', on_the_screen_x, on_the_screen_y);
+            break;
+        }
     }
   }
 

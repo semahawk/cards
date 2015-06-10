@@ -58,6 +58,7 @@ struct actor {
   char face;
   char color;
   int hp;
+  bool is_dead;
   unsigned effect_num;
   enum effect effects[12];
   struct ai *ai;
@@ -77,6 +78,7 @@ void update_actors(void);
 void actor_new(char, char, struct position, struct ai_transition *);
 void actor_apply_effect(struct actor *, enum effect);
 void actor_remove_effect(struct actor *, enum effect);
+bool actor_has_effect(struct actor *, enum effect);
 
 struct actor *actor_is_at_pos(struct position);
 

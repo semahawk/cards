@@ -123,6 +123,7 @@ void actor_new(char face, char color, struct position pos, struct ai_transition 
   ai->state = AI_STATE_WANDER;
   ai->archetype = archetype;
 
+  n->is_dead = false;
   n->face = face;
   n->color = color;
   n->pos = pos;
@@ -150,11 +151,17 @@ void update_actors(void)
   struct actor *actor, *temp;
 
   SLIST_FOREACH_SAFE(actor, &rendered_actors, actor, temp){
+    /* pretty much ignore them */
+    if (actor->is_dead)
+      continue;
+
     /* let's check if he's alive at all */
     if (actor->hp <= 0){
-      SLIST_REMOVE(&rendered_actors, actor, actor, actor);
+      /* "Dead men do not squat, lass, they sprawl." */
       free(actor->ai);
-      free(actor);
+      actor->ai = NULL;
+      /* let's make him dead */
+      actor->is_dead = true;
 
       printf("actor %p has died.\n", (void *)actor);
 
@@ -264,6 +271,7 @@ struct actor *danger_nearby(struct actor *actor)
 
   SLIST_FOREACH(other, &rendered_actors, actor){
     if (other == actor) continue;
+    if (other->is_dead) continue;
 
     if ((dist = distance(actor->pos, other->pos)) < 130){
       if (dist < shortest){
