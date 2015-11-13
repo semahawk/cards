@@ -15,7 +15,7 @@ OBJS = \
 	item.o \
 	text.o
 
-LIBS = `sdl-config --libs` -lSDL_gfx
+LIBS = `sdl-config --libs` -lSDL_gfx -lm
 
 all: $(PROJ)
 
