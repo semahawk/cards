@@ -70,8 +70,8 @@ struct chunk *load_chunk(int x, int y)
   printf("smoothing the chunk...\n");
 
   for (int g = 0; g < 7; g++){
-    for (i = 0; i < CHUNK_WIDTH; i++){
-      for (j = 0; j < CHUNK_HEIGHT; j++){
+    for (i = 1; i < CHUNK_WIDTH - 1; i++){
+      for (j = 1; j < CHUNK_HEIGHT - 1; j++){
         unsigned neighbour_count =
             n->tiles[i-1][j-1] + n->tiles[i][j-1] + n->tiles[i+1][j-1]
           + n->tiles[i-1][j]   + 0                + n->tiles[i+1][j]
