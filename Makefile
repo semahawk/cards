@@ -9,6 +9,7 @@ OBJS = \
 	event.o \
 	graphutils.o \
 	map.o \
+	noise.o \
 	inventory.o \
 	scene.o \
 	projectile.o \
@@ -21,6 +22,8 @@ all: $(PROJ)
 
 ${PROJ}: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+
+noise.o: noise.c noise.h
 
 run: all
 	./$(PROJ)

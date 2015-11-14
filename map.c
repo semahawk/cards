@@ -19,6 +19,7 @@
 #include "actor.h"
 #include "main.h"
 #include "map.h"
+#include "noise.h"
 #include "event.h"
 #include "item.h"
 #include "scene.h"
@@ -65,25 +66,7 @@ struct chunk *load_chunk(int x, int y)
 
   for (i = 0; i < CHUNK_WIDTH; i++)
     for (j = 0; j < CHUNK_HEIGHT; j++)
-      n->tiles[i][j] = rand() % 100 < 52 ? TILE_TREE : TILE_GRASS;
-
-  printf("smoothing the chunk...\n");
-
-  for (int g = 0; g < 7; g++){
-    for (i = 1; i < CHUNK_WIDTH - 1; i++){
-      for (j = 1; j < CHUNK_HEIGHT - 1; j++){
-        unsigned neighbour_count =
-            n->tiles[i-1][j-1] + n->tiles[i][j-1] + n->tiles[i+1][j-1]
-          + n->tiles[i-1][j]   + 0                + n->tiles[i+1][j]
-          + n->tiles[i-1][j+1] + n->tiles[i][j+1] + n->tiles[i+1][j+1];
-
-        if (neighbour_count > 4)
-          n->tiles[i][j] = TILE_TREE;
-        else if (neighbour_count < 4)
-          n->tiles[i][j] = TILE_GRASS;
-      }
-    }
-  }
+      n->tiles[i][j] = (tile_t)noise(i, j);
 
   return n;
 }
@@ -505,21 +488,6 @@ void map_init(void)
     for (j = 0; j < 3; j++)
       chunks[i][j] = load_chunk(map_origin_x + (i - 1) * CHUNK_WIDTH,
                                 map_origin_y + (j - 1) * CHUNK_HEIGHT);
-
-  actor_new('d', 'r', (struct position){ 0, 1 }, ai_predator);
-  actor_new('g', 'y', (struct position){ 6, 3 }, ai_prey);
-
-  for (int z = -35; z <= 5; z++){
-    tile(3, z) = TILE_MAGMA;
-    tile(z-2, 5) = TILE_MAGMA;
-    /*tile(-38, z) = TILE_MAGMA;*/
-    /*tile(z-1, -35) = TILE_MAGMA;*/
-  }
-
-  for (int z = 3; z <= 10; z++){
-    tile(z, 0) = TILE_MAGMA;
-    tile(10, z-2) = TILE_MAGMA;
-  }
 
   j = 0;
 
